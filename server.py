@@ -32,14 +32,12 @@ def create_account(username, password):
 
 """ Function to log in """
 def login(username, password):
-    # Iterate through all users
-    for user in USERS:
+    if username in USERS:
         # If there is a matching username, either log them in or fail based on password
-        if user == username:
-            if USERS[user].password == hash(password):
-                return 0
-            else:
-                return -1
+        if USERS[username].password == hash(password):
+            return 0
+        else:
+            return -1
 
     # No matching username found. Fail.
     return -1
@@ -51,10 +49,9 @@ def list_accounts():
 """ Function to send a message from one user to another """
 def send_message(sender, receiver, message):
     # Find receiver and queue message
-    for user in USERS:
-        if user == receiver:
-            MESSAGES[receiver].append(Message(sender, receiver, message))
-            return 0
+    if receiver in USERS:
+        MESSAGES[receiver].append(Message(sender, receiver, message))
+        return 0
 
     # Could not find receiver. Fail.
     return -1
