@@ -78,7 +78,8 @@ def delete_account(username):
     del MESSAGES[username]
     del USERS[username]
 
-def main():
+def unit_tests():
+    # TODO: Translate these to units tests and add asserts or some other framework to check responses
     print(USERS)
     create_account("yejoo", "0104")
     print(USERS)
@@ -106,16 +107,18 @@ def main():
     delete_account("idk")
     print(MESSAGES, USERS)
 
-main()
+def main():
+    # TODO: Add code to spin up threads and continually listen for client connections
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((HOST, PORT))
+        s.listen()
+        conn, addr = s.accept()
+        with conn:
+            print(f"Connected by {addr}")
+            while True:
+                data = conn.recv(1024)
+                if not data:
+                    break
+                conn.sendall(data)
 
-# with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#     s.bind((HOST, PORT))
-#     s.listen()
-#     conn, addr = s.accept()
-#     with conn:
-#         print(f"Connected by {addr}")
-#         while True:
-#             data = conn.recv(1024)
-#             if not data:
-#                 break
-#             conn.sendall(data)
+main()

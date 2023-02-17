@@ -1,6 +1,6 @@
 import socket
 
-HOST = "10.250.79.111"  # The server's hostname or IP address
+HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 65432  # The port used by the server
 
 PING = 0
@@ -12,8 +12,6 @@ SEND_MSG = 3
 #     s.connect((HOST, PORT))
 #     s.sendall(b"Hello, world")
 #     data = s.recv(1024)
-
-# print(f"Received {data!r}")
 
 """ Obtain open socket connection with the server """
 def get_socket():
@@ -36,28 +34,25 @@ def make_request(s, req_type, args):
         pass
     elif req_type == SEND_MSG:
         pass
-
+    return s.recv(1024)
 
 def login(s):
     u = input("Username?\n")
     p = input("Password?\n")
     return make_request(s, LOGIN, (u, p))
-    pass
 
 def register(s):
-    pass
+    u = input("Username?\n")
+    p = input("Password?\n")
+    return make_request(s, REGISTER, (u, p))
 
 def login_or_register(s):
     print("Welcome! Please type `L` to login to an existing account or `R` to register a different account\n")
     resp = input("")
     while resp not in "LR":
         resp = input("Input not recognized")
-    if resp == "L":
-        login(s)
-    else:
-        register(s)
-    return
-
+    return login(s) ? resp == "L" : register(s)
+    
 def main():
     err, s = get_socket()
     if err != 0:
