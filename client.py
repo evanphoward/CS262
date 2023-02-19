@@ -12,7 +12,7 @@ SEND_MSG = 3
 LOGOUT = 4
 LIST = 5
 DELETE = 6
-NUM_ARGUMENTS = {PING: 0, REGISTER: 2, LOGIN: 2, SEND_MSG: 3, LOGOUT: 1, LIST: 1, DELETE: 1}
+NUM_ARGS = {PING: 0, REGISTER: 2, LOGIN: 2, SEND_MSG: 3, LOGOUT: 1, LIST: 1, DELETE: 1}
 REQUEST_ERRS = {PING: [], 
                 REGISTER: ["Error: Username must be less than 256 characters", "Error: Password must be less than 256 characters"],
                 LOGIN:["Error: Username must be less than 256 characters", "Error: Password must be less than 256 characters"],
@@ -42,7 +42,7 @@ def get_socket():
 """ Gets a response from server and parses it according to wire protocol """
 def parse_response(resp):
     if not resp:
-        return 1, "Error: Could not reach server"
+        return 1, "Error: Lost connection to server"
     ret_type = resp[0]
     msg_length = int(resp[1])
     return ret_type, resp[2 : 2 + msg_length].decode()
@@ -57,7 +57,7 @@ def pack_arg(arg):
 """ Makes a request to the s socket. req_type is the type of request and args are the arguments needed for that request """
 def make_request(s, req_type, args):
     global WAITING_FOR_RESP
-    packed_req = (req_type).to_bytes(1, byteorder='big')
+    packed_req = (req_type).to_bytes(1, byteorder='big') + (NUM_ARGS[req_type]).to_bytes(1, byteorder='big')
     for i, arg in enumerate(args):
         err, packed_arg = pack_arg(arg)
         if err != 0:
