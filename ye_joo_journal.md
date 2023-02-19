@@ -20,3 +20,8 @@ receive_messages: should have wire protocol that probably delivers one message a
 delete_account & receive_messages: there's a failure case if username is not in USERS or MESSAGES that's not handled at the moment. might be unnecessary (based on how app is designed, we could just take the current user's username) but also makes the functions pretty failure-prone in their absence.
 delete_account: returning undelivered messages to sender since that seems the most reasonable (and sender would want to know this!)
 side note: make USERS a dict? constant access to username rather than traversing! --> actually gonna do that lol
+
+2023.02.19.
+implementing wire protocol on server side. some redundancy in parsing wire protocol arguments (ex: login and register have exact same arguments) --> try to clean up later.
+Question for self: should handle_connection have different error codes for different errors that occur? (ex: incorrect password vs. username not found) It doesn't seem that useful at the moment.
+for listing accounts & receiving messages, current pack_msg seems failure prone
