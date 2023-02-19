@@ -1,4 +1,6 @@
 import socket
+from _thread import *
+import threading
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 65432  # The port used by the server
@@ -8,6 +10,18 @@ REGISTER = 1
 LOGIN = 2
 SEND_MSG = 3
 LOGOUT = 4
+LIST = 5
+DELETE = 6
+NUM_ARGUMENTS = {PING: 0, REGISTER: 2, LOGIN: 2, SEND_MSG: 3, LOGOUT: 1, LIST: 1, DELETE: 1}
+REQUEST_ERRS = {PING: [], 
+                REGISTER: ["Error: Username must be less than 256 characters", "Error: Password must be less than 256 characters"],
+                LOGIN:["Error: Username must be less than 256 characters", "Error: Password must be less than 256 characters"],
+                SEND_MSG: ["Error: Sender username too long, how did you mess up your own name?", "Error: Recepient Username must be less than 256 characters",  
+                            "Error: Message must be less than 256 characters"],
+                LOGOUT: ["Error: Username must be less than 256 characters"]}
+
+PRINT_LOCK = threading.Lock()
+WAITING_FOR_RESP = False
 
 CONNECTION_ERROR = 1
 RETRY_ERROR = 2
@@ -30,11 +44,8 @@ def parse_response(resp):
     if not resp:
         return 1, "Error: Could not reach server"
     ret_type = resp[0]
-    if ret_type != 0:
-        err_msg_length = int(resp[1])
-        return -1, resp[2:2+err_msg_length]
     msg_length = int(resp[1])
-    return 0, resp[2: 2 + msg_length].decode()
+    return ret_type, resp[2 : 2 + msg_length].decode()
 
 """ Packs a string argument into a bytes object (appends the length of the string to the front and turns everything into bytes) """
 def pack_arg(arg):
@@ -45,50 +56,35 @@ def pack_arg(arg):
 
 """ Makes a request to the s socket. req_type is the type of request and args are the arguments needed for that request """
 def make_request(s, req_type, args):
-    pack_req_type = (req_type).to_bytes(1, byteorder='big')
-    if req_type == PING or req_type == LOGOUT:
-        s.sendall(pack_req_type)
-    elif req_type == LOGIN or req_type == REGISTER:
-        username, password = args
-        err, packed_username = pack_arg(username)
+    global WAITING_FOR_RESP
+    packed_req = (req_type).to_bytes(1, byteorder='big')
+    for i, arg in enumerate(args):
+        err, packed_arg = pack_arg(arg)
         if err != 0:
-            return 2, "Error: Username must be less than 256 characters"
-        err, packed_password = pack_arg(password)
-        if err != 0:
-            return 2, "Error: Username must be less than 256 characters"
-        s.sendall(pack_req_type + packed_username + packed_password)
-    elif req_type == SEND_MSG:
-        sender, receiver, msg = args
-        err, packed_sender = pack_arg(sender)
-        if err != 0:
-            return 2, "Error: Sender username too long, how did you mess up your own name?"
-        err, packed_sender = pack_arg(sender)
-        if err != 0:
-            return 2, "Error: Recepient username not found"
-        err, packed_msg = pack_arg(msg)
-        if err != 0:
-            return 2, "Error: Message must be less than 256 characters"
-        s.sendall(pack_req_type + packed_sender + packed_receiver + packed_msg)
-    err, ret_msg = parse_response(s.recv(1024))
-    print(ret_msg)
-    return err
+            return 2, REQUEST_ERRS[req_type][i]
+        packed_req += packed_arg
+    s.sendall(packed_req)
+    WAITING_FOR_RESP = True
+    return 0, ""
 
 def login(s):
     u = input("Username? ")
     p = input("Password? ")
-    return make_request(s, LOGIN, (u, p))
+    return make_request(s, LOGIN, (u, p)) + (u,)
 
 def register(s):
     u = input("Username? ")
     p = input("Password? ")
-    return make_request(s, REGISTER, (u, p))
+    return make_request(s, REGISTER, (u, p)) + (u,)
 
 def login_or_register(s):
-    print("Welcome! Please type `L` to login to an existing account or `R` to register a different account")
-    resp = input("")
+    resp = input("Welcome! Would you like to (L)ogin to an existing account or (R)egister a new account (Type L or R)?\n").upper()
     while resp not in "LR":
-        resp = input("Input not recognized")
-    return login(s) if resp == "L" else register(s)
+        resp = input("Input not recognized, please type L or R. ").upper()
+    err, msg, u = login(s) if resp == "L" else register(s)
+    if err != 0:
+        return err, msg
+    return parse_response(s.recv(1024)) + (u,)
 
 def logout(s):
     make_request(s, LOGOUT, ())
@@ -99,21 +95,80 @@ def ping(s):
     if err != 0:
         exit()
 
+def list_users(s):
+    search = input("Please supply a search term (Leave blank to see all users, use * as a wildcard)\n")
+    return make_request(s, LIST, (search))
+
+def send_msg(s, user):
+    receiver = input("Who would you like to send a message to? ")
+    msg = input("Please type your message (Max 256 characters)\n")
+    return make_request(s, SEND_MSG, (user, receiver, msg))
+
+def delete_account(s, user):
+    make_request(s, DELETE, (user,))
+    s.close()
+
+def listen_for_resp(s):
+    global WAITING_FOR_RESP
+    while True:
+        try:
+            err, ret_msg = parse_response(s.recv(1024))
+        except:
+            break
+
+        if err == CONNECTION_ERROR:
+            print("Connection to server lost, logging out")
+            s.close()
+            break
+        PRINT_LOCK.acquire()
+        WAITING_FOR_RESP = False
+        print(ret_msg)
+        PRINT_LOCK.release()
+
 def main():
+    global WAITING_FOR_RESP
+
     err, s = get_socket()
     if err != 0:
         print(s)
         exit()
-    err = login_or_register(s)
+
+    err, msg, username = login_or_register(s)
+    print(msg)
     if err == CONNECTION_ERROR:
         exit()
     while err == RETRY_ERROR:
-        err = login_or_register(s)
+        err, msg, username = login_or_register(s)
+        print(msg)
         if err == CONNECTION_ERROR:
             exit()
-    ping(s)
-    logout(s)
-    # TODO: Server should send all queued messages and client should display them whenever a user logs in
-    # TODO: Receive messages on demand while logged in. Some kind of s.recv() in a loop, but also able to send messages whenever the user wants while in this loop
+    WAITING_FOR_RESP = False
+
+    t = threading.Thread(target=listen_for_resp, args=(s,))
+    t.daemon = True
+    t.start()
+
+    while True:
+        while WAITING_FOR_RESP:
+            pass
+        PRINT_LOCK.acquire()
+        opt = print("Welcome " + username + "! Would you like to (L)ist users, (S)end a message, (D)elete your account, or L(o)gout?")
+        PRINT_LOCK.release()
+        opt = input("").upper()
+
+        PRINT_LOCK.acquire()
+        while opt not in "LSDO":
+            opt = input("Input not recognized, please type L, S, D, or O. ").upper()
+        if opt == "L":
+            list_users(s)
+        elif opt == "S":
+            send_msg(s, username)
+        elif opt == "D":
+            delete_account(s, username)
+            break
+        elif opt == "O":
+            logout(s)
+            break
+        PRINT_LOCK.release()
     
 main()
