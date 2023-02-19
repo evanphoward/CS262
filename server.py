@@ -15,6 +15,10 @@ LIST_ACCOUNT = 5
 USERS = {}
 MESSAGES = {}
 
+SUCCESS = 0
+CONNECTION_ERROR = 1
+RETRY_ERROR = 2
+
 """ Class that represents a User of the application """
 class User():
     def __init__(self, username, password):
@@ -137,7 +141,7 @@ def handle_connection(conn):
         num_args = data[1]
 
         if opcode == PING:
-            conn.sendall((0).to_bytes(1, byteorder='big') + pack_msg("PONG!"))
+            conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("PONG!"))
         elif opcode == LOGIN:
             # Parse login arguments
             username_length = int(data[2])
@@ -148,11 +152,11 @@ def handle_connection(conn):
             # Login and send success/failure to client
             login_status = login(username, password)
             if login_status == 0:
-                conn.sendall((0).to_bytes(1, byteorder='big') + pack_msg("Successfully Logged In!"))
+                conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Successfully Logged In!"))
             elif login_status == 1:
-                conn.sendall((1).to_bytes(1, byteorder='big') + pack_msg("Incorrect Password"))
+                conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Incorrect Password"))
             elif login_status == 2:
-                conn.sendall((1).to_bytes(1, byteorder='big') + pack_msg("Username Not Found"))
+                conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Username Not Found"))
         elif opcode == REGISTER:
             # Parse register arguments
             # TODO: redundancy so cleanup lol
@@ -164,9 +168,9 @@ def handle_connection(conn):
             # Create account and send success/failure to client
             register_status = create_account(username, password)
             if register_status == 0:
-                conn.sendall((0).to_bytes(1, byteorder='big') + pack_msg("Successfully Registered!"))
+                conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Successfully Registered!"))
             elif register_status == 1:
-                conn.sendall((1).to_bytes(1, byteorder='big') + pack_msg("Username Already Exists"))
+                conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Username Already Exists"))
         elif opcode == SEND_MSG:
             # Parse send arguments
             sender_length = int(data[2])
@@ -179,15 +183,15 @@ def handle_connection(conn):
             # Send message and send success/failure to client
             send_status = send_message(sender, receiver, message)
             if send_status == 0:
-                conn.sendall((0).to_bytes(1, byteorder='big') + pack_msg("Successfully Sent Message!"))
+                conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Successfully Sent Message!"))
             elif send_status == 1:
-                conn.sendall((1).to_bytes(1, byteorder='big') + pack_msg("Receiver Username Does Not Exist"))
+                conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Receiver Username Does Not Exist"))
         elif opcode == LIST_ACCOUNTS:
             accounts = list_accounts()
             # TODO: maybe not use pack_msg on the full thing. if there are lots of users, may fail assert in it.
-            conn.sendall((0).to_bytes(1, byteorder='big')) + pack_msg(accounts)
+            conn.sendall((SUCCESS).to_bytes(1, byteorder='big')) + pack_msg(accounts)
         elif opcode == LOGOUT:
-            conn.sendall((0).to_bytes(1, byteorder='big') + pack_msg("Logout Acknowledged!"))
+            conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Logout Acknowledged!"))
             break
         conn.close()
 
