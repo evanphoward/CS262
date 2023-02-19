@@ -1,7 +1,15 @@
 import socket
+from _thread import *
+import threading
 
 HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
+
+PING = 0
+REGISTER = 1
+LOGIN = 2
+SEND_MSG = 3
+LOGOUT = 4
 
 USERS = {}
 MESSAGES = {}
@@ -107,18 +115,41 @@ def unit_tests():
     delete_account("idk")
     print(MESSAGES, USERS)
 
+def pack_msg(msg_str):
+    byte_msg = msg_str.encode()
+    assert(len(byte_msg) < 256)
+    return (len(byte_msg)).to_bytes(1, byteorder='big') + byte_msg
+
+def handle_connection(conn):
+    while True:
+        data = conn.recv(1024)
+        if not data:
+            break
+        # TODO: Parse data according to wire protocol and do right thing
+        opcode = data[0]
+        if opcode == PING:
+            conn.sendall((0).to_bytes(1, byteorder='big') + pack_msg("PONG!"))
+        elif opcode == LOGIN:
+            conn.sendall((0).to_bytes(1, byteorder='big') + pack_msg("Successfully Logged In!"))
+        elif opcode == REGISTER:
+            conn.sendall((0).to_bytes(1, byteorder='big') + pack_msg("Successfully Registered!"))
+        elif opcode == SEND_MSG:
+            conn.sendall((0).to_bytes(1, byteorder='big') + pack_msg("Successfully Sent Message!"))
+        elif opcode == LOGOUT:
+            conn.sendall((0).to_bytes(1, byteorder='big') + pack_msg("Logout Acknowledged!"))
+            break
+    conn.close()
+
 def main():
-    # TODO: Add code to spin up threads and continually listen for client connections
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((HOST, PORT))
-        s.listen()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    s.bind((HOST, PORT))
+    s.listen()
+
+    while True:
         conn, addr = s.accept()
-        with conn:
-            print(f"Connected by {addr}")
-            while True:
-                data = conn.recv(1024)
-                if not data:
-                    break
-                conn.sendall(data)
+        start_new_thread(handle_connection, (conn,))
+
+    s.close()
 
 main()
