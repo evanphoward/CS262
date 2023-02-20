@@ -1,6 +1,7 @@
 import socket
 from _thread import *
 import threading
+import fnmatch
 
 HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
@@ -10,7 +11,8 @@ REGISTER = 1
 LOGIN = 2
 SEND_MSG = 3
 LOGOUT = 4
-LIST_ACCOUNT = 5
+LIST = 5
+DELETE = 6
 
 USERS = {}
 MESSAGES = {}
@@ -55,12 +57,13 @@ def login(username, password):
     # No matching username found. Fail.
     return 2
 
-""" Function to list all accounts """
-def list_accounts():
+""" Function to search and list all accounts """
+def list_accounts(search):
     accounts = ""
     for username in USERS:
-        accounts += username
-        accounts += "\n"
+        if fnmatch.fnmatch(username, search):
+            accounts += username
+            accounts += "\n"
 
     return accounts
 
@@ -104,7 +107,10 @@ def unit_tests():
     create_account("yejoo", "0123")
     print(USERS)
     create_account("idk", "sth")
-    print(list_accounts())
+    print(list_accounts("*"))
+    print(list_accounts("ye*"))
+    print(list_accounts("*oo"))
+    print(list_accounts("*d*"))
     print(MESSAGES)
 
     print(login("yejoo", "0123"))
@@ -130,24 +136,33 @@ def pack_msg(msg_str):
     assert(len(byte_msg) < 256)
     return (len(byte_msg)).to_bytes(1, byteorder='big') + byte_msg
 
+def parse_request(request):
+    opcode = request[0]
+    num_args = request[1]
+    args = []
+    index = 2
+
+    for arg in range(num_args):
+        arg_length = int(request[index])
+        args.append(request[index + 1: index + 1 + arg_length].decode())
+        index = index + arg_length + 1
+
+    return opcode, args
+
 def handle_connection(conn):
     while True:
         data = conn.recv(1024)
         if not data:
             break
-        # TODO: Parse data according to wire protocol and do right thing
-        opcode = data[0]
-        # TODO: Integrate num_args in client side. Also add stuff about failure (i.e. if opcode is LOGIN and the # of args is 4, fail lol)
-        num_args = data[1]
+
+        opcode, args = parse_request(data)
 
         if opcode == PING:
             conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("PONG!"))
         elif opcode == LOGIN:
-            # Parse login arguments
-            username_length = int(data[2])
-            username = data[3: 3 + username_length].decode()
-            password_length = int(data[3 + username_length])
-            password = data[4 + username_length: 4 + username_length + password_length].decode()
+            # Get login arguments
+            username = args[0]
+            password = args[1]
 
             # Login and send success/failure to client
             login_status = login(username, password)
@@ -158,12 +173,9 @@ def handle_connection(conn):
             elif login_status == 2:
                 conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Username Not Found"))
         elif opcode == REGISTER:
-            # Parse register arguments
-            # TODO: redundancy so cleanup lol
-            username_length = int(data[2])
-            username = data[3: 3 + username_length].decode()
-            password_length = int(data[3 + username_length])
-            password = data[4 + username_length: 4 + username_length + password_length].decode()
+            # Get register arguments
+            username = args[0]
+            password = args[1]
 
             # Create account and send success/failure to client
             register_status = create_account(username, password)
@@ -172,13 +184,10 @@ def handle_connection(conn):
             elif register_status == 1:
                 conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Username Already Exists"))
         elif opcode == SEND_MSG:
-            # Parse send arguments
-            sender_length = int(data[2])
-            sender = data[3: 3 + sender_length].decode()
-            receiver_length = int(data[3 + sender_length])
-            receiver = data[4 + sender_length: 4 + sender_length + receiver_length].decode()
-            message_length = int(data[4 + sender_length + receiver_length])
-            message = data[5 + sender_length + receiver_length: 5 + sender_length + receiver_length + message_length]
+            # Get send arguments
+            sender = args[0]
+            receiver = args[1]
+            message = args[2]
 
             # Send message and send success/failure to client
             send_status = send_message(sender, receiver, message)
@@ -186,14 +195,24 @@ def handle_connection(conn):
                 conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Successfully Sent Message!"))
             elif send_status == 1:
                 conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Receiver Username Does Not Exist"))
-        elif opcode == LIST_ACCOUNTS:
-            accounts = list_accounts()
+        elif opcode == LIST:
             # TODO: maybe not use pack_msg on the full thing. if there are lots of users, may fail assert in it.
-            conn.sendall((SUCCESS).to_bytes(1, byteorder='big')) + pack_msg(accounts)
+            if len(args) == 0:
+                accounts = list_accounts("*")
+            else:
+                search = args[0]
+                accounts = list_accounts(search)
+
+            conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg(accounts))
         elif opcode == LOGOUT:
             conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Logout Acknowledged!"))
             break
-        conn.close()
+        elif opcode == DELETE:
+            username = args[0]
+            delete_account(username)
+            conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Deleted Account!"))
+
+        # conn.close()
 
 def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

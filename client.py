@@ -57,7 +57,7 @@ def pack_arg(arg):
 """ Makes a request to the s socket. req_type is the type of request and args are the arguments needed for that request """
 def make_request(s, req_type, args):
     global WAITING_FOR_RESP
-    packed_req = (req_type).to_bytes(1, byteorder='big') + (NUM_ARGS[req_type]).to_bytes(1, byteorder='big')
+    packed_req = (req_type).to_bytes(1, byteorder='big') + (len(args)).to_bytes(1, byteorder='big')
     for i, arg in enumerate(args):
         err, packed_arg = pack_arg(arg)
         if err != 0:
@@ -97,7 +97,13 @@ def ping(s):
 
 def list_users(s):
     search = input("Please supply a search term (Leave blank to see all users, use * as a wildcard)\n")
-    return make_request(s, LIST, (search))
+    # Blank Input by User
+    if not search:
+        return make_request(s, LIST, ())
+
+    # User Input
+    else:
+        return make_request(s, LIST, (search))
 
 def send_msg(s, user):
     receiver = input("Who would you like to send a message to? ")

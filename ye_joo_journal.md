@@ -25,3 +25,9 @@ side note: make USERS a dict? constant access to username rather than traversing
 implementing wire protocol on server side. some redundancy in parsing wire protocol arguments (ex: login and register have exact same arguments) --> try to clean up later.
 Question for self: should handle_connection have different error codes for different errors that occur? (ex: incorrect password vs. username not found) It doesn't seem that useful at the moment.
 for listing accounts & receiving messages, current pack_msg seems failure prone
+
+2023.02.20.
+OS Error: Bad File Descriptor --> trying to resolve this error. Seems to be triggered by doing conn.close() in handle_connections (getting rid of it makes the error go away). Probably has something to do with trying to receive from an already closed connection.
+Cleaned up parsing the request according to wire protocol.
+Getting Indexing Error when parsing "list" request because when the user inputs blank but server expects one argument. Fixing on client side.
+Adding wildcard matching in list_account functionality. Document for user.
