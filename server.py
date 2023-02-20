@@ -26,6 +26,7 @@ class User():
     def __init__(self, username, password):
         self.username = username
         self.password = hash(password)
+        self.socket = None
 
 """ Class that represents a Message on the application """
 class Message():
@@ -71,7 +72,10 @@ def list_accounts(search):
 def send_message(sender, receiver, message):
     # Find receiver and queue message
     if receiver in USERS:
-        MESSAGES[receiver].append(Message(sender, receiver, message))
+        if USERS[receiver].socket:
+            USERS[receiver].socket.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("From " + sender + ": " + message + "\n"))
+        else:
+            MESSAGES[receiver].append(Message(sender, receiver, message))
         return 0
 
     # Could not find receiver. Fail.
@@ -196,7 +200,12 @@ def handle_connection(conn):
             # Login and send success/failure to client
             login_status = login(username, password)
             if login_status == 0:
+                USERS[username].socket = conn
                 conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Successfully Logged In!"))
+                messages_to_deliver = receive_messages(username)
+                print(messages_to_deliver)
+                if messages_to_deliver:
+                    conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("New Messages:\n" + messages_to_deliver))
             elif login_status == 1:
                 conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Incorrect Password"))
             elif login_status == 2:
@@ -209,6 +218,7 @@ def handle_connection(conn):
             # Create account and send success/failure to client
             register_status = create_account(username, password)
             if register_status == 0:
+                USERS[username].socket = conn
                 conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Successfully Registered!"))
             elif register_status == 1:
                 conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Username Already Exists"))
@@ -234,14 +244,17 @@ def handle_connection(conn):
 
             conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg(accounts))
         elif opcode == LOGOUT:
+            USERS[username].socket = None
             conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Logout Acknowledged!"))
             break
         elif opcode == DELETE:
             username = args[0]
             delete_account(username)
             conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Deleted Account!"))
+            break
 
-        # conn.close()
+    # If we break out of the loop, we close the connection before return from this function
+    conn.close()
 
 def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

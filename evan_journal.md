@@ -15,3 +15,10 @@ Added a bunch of client functionality, actually making the requests to the serve
 
 # 2/19/23
 In order to solve the problem of both listening for messages in the client and also waiting for user input, we've decided to make the client multithreaded -- with one thread listening for messages from the server and the other listening for user input from the user. We'll use a lock so that if the user is currently trying to perform an operation the lock is held, and if the client received a message from the server and is printing to the user the lock is also held.
+
+# 2/20/23
+Thinking about how to send messages back to the user. When a user sends another user a message, if that user is logged in then the message should be delivered immedietely. Otherwise it should be delivered the next timat that user logs in. Some thoughts: 
+1. Sockets could be stored somewhere global in the server and the sending thread could get the receiver's socket and send the messages along.
+2. The receiver's thread could check for messages after handling a request from that user
+
+Implemented number 1 and it seems to work reasonably well. This should handle the case where there are undelivered messages and they delete their account since it should be impossible to have undelivered messages while logged in, so i don't think we need to handle that case. I'm not sure if listing users is working since If I have user "evan" and I type "ev*" it doesn't list that account, need to debug that. Still need to reimplement everything in grpc

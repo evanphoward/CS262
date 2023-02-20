@@ -22,6 +22,7 @@ REQUEST_ERRS = {PING: [],
 
 PRINT_LOCK = threading.Lock()
 WAITING_FOR_RESP = False
+SOCKET_LOST = False
 
 CONNECTION_ERROR = 1
 RETRY_ERROR = 2
@@ -115,7 +116,7 @@ def delete_account(s, user):
     s.close()
 
 def listen_for_resp(s):
-    global WAITING_FOR_RESP
+    global WAITING_FOR_RESP, SOCKET_LOST
     while True:
         try:
             err, ret_msg = parse_response(s.recv(1024))
@@ -123,7 +124,8 @@ def listen_for_resp(s):
             break
 
         if err == CONNECTION_ERROR:
-            print("Connection to server lost, logging out")
+            SOCKET_LOST = True
+            print("Connection to server lost, please press enter to close client")
             s.close()
             break
         PRINT_LOCK.acquire()
@@ -161,6 +163,8 @@ def main():
         opt = print("Welcome " + username + "! Would you like to (L)ist users, (S)end a message, (D)elete your account, or L(o)gout?")
         PRINT_LOCK.release()
         opt = input("").upper()
+        if SOCKET_LOST:
+            break
 
         PRINT_LOCK.acquire()
         while opt not in "LSDO":
