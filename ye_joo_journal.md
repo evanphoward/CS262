@@ -31,3 +31,5 @@ OS Error: Bad File Descriptor --> trying to resolve this error. Seems to be trig
 Cleaned up parsing the request according to wire protocol.
 Getting Indexing Error when parsing "list" request because when the user inputs blank but server expects one argument. Fixing on client side.
 Adding wildcard matching in list_account functionality. Document for user.
+Converted print tests to unit tests. I do wonder if receive_message should work the way it does right now (stacking up strings). An alternative way to do it is to just have a list and then packing arguments, which almost seems more reasonable. (This would require change in server --> client protocol)
+Account Deletes --> queueing return message back to MESSAGES to be delievered like any other message, just with the information that the account has been deleted

@@ -80,56 +80,85 @@ def send_message(sender, receiver, message):
 """ Function to receive all messages on behalf of user """
 def receive_messages(receiver):
     # Deliver all unread messages
+    deliver = ""
     for message in MESSAGES[receiver]:
-        # TODO: well, you'd actually do the delivery. just printing for now lol
-        print(message.sender, message.receiver, message.message)
+        deliver += ("From " + message.sender + ": " + message.message + "\n")
 
     # All messages have been read. Empty messages for receiver.
     MESSAGES[receiver] = []
-    return 0
+    return deliver
 
 """ Function to delete account """
 def delete_account(username):
     # Return messages to sender to notify not delievered
     for message in MESSAGES[username]:
-        # TODO: once again, you'd actually have to do the delivery. just printing lol
-        print(message.sender, message.receiver, message.message)
+        return_message = "Account Deleted. Original message not delievered: " + message.message
+        MESSAGES[message.sender].append(Message(message.receiver, message.sender, return_message))
 
     # Delete Account
     del MESSAGES[username]
     del USERS[username]
 
 def unit_tests():
-    # TODO: Translate these to units tests and add asserts or some other framework to check responses
-    print(USERS)
+    # Test: Successfully creates account in USERS
     create_account("yejoo", "0104")
-    print(USERS)
+    assert(USERS["yejoo"].username == "yejoo")
+    assert(USERS["yejoo"].password == hash("0104"))
+
+    # Test: Username must be unique
     create_account("yejoo", "0123")
-    print(USERS)
+    assert(USERS["yejoo"].username == "yejoo")
+    assert(USERS["yejoo"].password == hash("0104"))
+
+    # Test: Listing Accounts
     create_account("idk", "sth")
-    print(list_accounts("*"))
-    print(list_accounts("ye*"))
-    print(list_accounts("*oo"))
-    print(list_accounts("*d*"))
-    print(MESSAGES)
+    create_account("yej", "password")
+    create_account("middle", "mid")
+    assert(list_accounts("*") == "yejoo\nidk\nyej\nmiddle\n")
+    assert(list_accounts("ye*") == "yejoo\nyej\n")
+    assert(list_accounts("*oo") == "yejoo\n")
+    assert(list_accounts("*d*") == "idk\nmiddle\n")
 
-    print(login("yejoo", "0123"))
-    print(login("yejoo", "0104"))
-    print(login("idk", "sth"))
+    # Test: Login only logs in users with correct passwords
+    assert(login("yejoo", "0123") == 1)
+    assert(login("yejoo", "0104") == 0)
+    assert(login("idk", "sth") == 0)
+    assert(login("dklfjsk;", "sdl k") == 2)
+    assert(login("middle", "idk") == 1)
 
+    # Test: sending message queues message
     send_message("yejoo", "idk", "secrete")
     send_message("yejoo", "idk", "dfjopadd")
     send_message("idk", "yejoo", "dofjsoi")
-    print(MESSAGES)
+    assert(len(MESSAGES["idk"]) == 2)
+    assert(MESSAGES["idk"][0].sender == "yejoo")
+    assert(MESSAGES["idk"][0].receiver == "idk")
+    assert(MESSAGES["idk"][0].message == "secrete")
+    assert(MESSAGES["idk"][1].sender == "yejoo")
+    assert(MESSAGES["idk"][1].receiver == "idk")
+    assert(MESSAGES["idk"][1].message == "dfjopadd")
+    assert(len(MESSAGES["yejoo"]) == 1)
+    assert(MESSAGES["yejoo"][0].sender == "idk")
+    assert(MESSAGES["yejoo"][0].receiver == "yejoo")
+    assert(MESSAGES["yejoo"][0].message == "dofjsoi")
 
-    receive_messages("yejoo")
-    receive_messages("idk")
-    print(MESSAGES)
+    # Test: receiving message looks at queued message
+    assert(receive_messages("yejoo") == "From idk: dofjsoi\n")
+    assert(receive_messages("idk") == "From yejoo: secrete\nFrom yejoo: dfjopadd\n")
 
+    # Test: messages are received just once.
+    assert(receive_messages("yejoo") == "")
+    assert(receive_messages("idk") == "")
+
+    # Test: deleted account returns messages and gets rid of user
     send_message("yejoo", "idk", "more")
     send_message("yejoo", "idk", "more2")
     delete_account("idk")
-    print(MESSAGES, USERS)
+    assert(receive_messages("yejoo") == "From idk: Account Deleted. Original message not delievered: more\nFrom idk: Account Deleted. Original message not delievered: more2\n")
+    assert("idk" not in USERS)
+    assert("idk" not in MESSAGES)
+    assert(receive_messages("yejoo") == "")
+
 
 def pack_msg(msg_str):
     byte_msg = msg_str.encode()
@@ -227,3 +256,4 @@ def main():
     s.close()
 
 main()
+# unit_tests()
