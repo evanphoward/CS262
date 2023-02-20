@@ -203,7 +203,6 @@ def handle_connection(conn):
                 USERS[username].socket = conn
                 conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Successfully Logged In!"))
                 messages_to_deliver = receive_messages(username)
-                print(messages_to_deliver)
                 if messages_to_deliver:
                     conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("New Messages:\n" + messages_to_deliver))
             elif login_status == 1:
