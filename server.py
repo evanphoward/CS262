@@ -20,6 +20,7 @@ MESSAGES = {}
 SUCCESS = 0
 CONNECTION_ERROR = 1
 RETRY_ERROR = 2
+MESSAGE = 3
 
 """ Class that represents a User of the application """
 class User():
@@ -73,7 +74,7 @@ def send_message(sender, receiver, message):
     # Find receiver and queue message
     if receiver in USERS:
         if USERS[receiver].socket:
-            USERS[receiver].socket.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("From " + sender + ": " + message + "\n"))
+            USERS[receiver].socket.sendall((MESSAGE).to_bytes(1, byteorder='big') + pack_msg("From " + sender + ": " + message + "\n"))
         else:
             MESSAGES[receiver].append(Message(sender, receiver, message))
         return 0

@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+service ChatServer {
+    rpc Ping(Empty) returns (Response) {}
+    rpc Register(User) returns (Response) {}
+    rpc Login(User) returns (Response) {}
+    rpc Logout(User) returns (Response) {}
+    rpc SendMsg(Message) returns (Response) {}
+    rpc List(ListQuery) returns (Response) {}
+    rpc Delete(User) returns (Response) {}
+}
+
+message Empty {
+
+}
+
+message Message {
+    string sender = 1;
+    string receiver = 2;
+    string message = 3;
+}
+
+message User {
+    string username = 1;
+    string password = 2;
+}
+
+message Response {
+    int32 retType = 1;
+    string responseString = 2;
+}
+
+message ListQuery {
+    string query = 1;
+}

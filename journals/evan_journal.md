@@ -22,3 +22,13 @@ Thinking about how to send messages back to the user. When a user sends another 
 2. The receiver's thread could check for messages after handling a request from that user
 
 Implemented number 1 and it seems to work reasonably well. This should handle the case where there are undelivered messages and they delete their account since it should be impossible to have undelivered messages while logged in, so i don't think we need to handle that case. I'm not sure if listing users is working since If I have user "evan" and I type "ev*" it doesn't list that account, need to debug that. Still need to reimplement everything in grpc
+
+I've realized that the current approach of decoupling listening for input and listening for messages from the server is fundamentally incompatible with the gRPC approach. I've decided to rewrite the client in order to make it singlethreaded and handle these things in a more request/response way. Current problem is that our current wire protocol doesn't give us an easy way to handle more than one message in a single response i.e. the packets don't start in a consistent way.
+
+Ohhhh, python gives you a bytes array that is the exact length of the response it received, the 1024 argument is just the max length. That makes it easier.
+
+Reconfigured parse_response in the client to get every message sent from the server. In send_request, it prints all the messages it gets (First byte is 3), and then returns the singular response for the request that it sent. That means that currently a user only gets its messages when they log-in or when they make a request to the server which isn't ideal.
+
+Thinking more about how gRPC operates, I've decided to simplify things further by requiring the user to actively check their messages in order to see the received messsages. Messages are still sent to the client as soon as they are received by the server, they just aren't displayed to the user until they ask for them, delete their account, or log out.
+
+Started to implement gRPC based on tutorials at https://grpc.io/docs/languages/python/quickstart/ and https://grpc.io/docs/languages/python/basics/. As it stands, need to copy over code from our server.py and try to implement the various functions in the server class. Big questions for me are how we will be sending messages to the user (initial thought is to turn the check message button into a request to the server, where the server is storing the messages).
