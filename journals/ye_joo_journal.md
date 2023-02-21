@@ -43,3 +43,11 @@ Generally tested functions in non-grpc chat case. Just one error case.
 The initial messaging seems to work but one thing I've tried that doesn't properly work (maybe it's just me):
 if yejoo sends evan message, yejoo logs out, evan logs in, evan logs out, then upon log out evan will see message
 if yejoo sends evan message, yejoo logs out, evan logs in, evan clicks check message, then there will be no message, when evan tries to log out it will pring PONG?
+
+Started working on grpc server side. Distinction between unary and stream seem useful --> we probably want some of these to be streaming multiple responses rather than strings.
+Implemented login and register to be unary.
+
+Thoughts on grpc for tm morning:
+1. Create a message-stream listener that will listen to messages from the server --> this could mean not having to deal with getting messages specifically at login?
+2. Test making List a unary_stream
+3. Maybe Delete/Receive should also get user info and then stream messages
