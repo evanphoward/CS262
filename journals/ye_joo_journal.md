@@ -33,3 +33,13 @@ Getting Indexing Error when parsing "list" request because when the user inputs 
 Adding wildcard matching in list_account functionality. Document for user.
 Converted print tests to unit tests. I do wonder if receive_message should work the way it does right now (stacking up strings). An alternative way to do it is to just have a list and then packing arguments, which almost seems more reasonable. (This would require change in server --> client protocol)
 Account Deletes --> queueing return message back to MESSAGES to be delievered like any other message, just with the information that the account has been deleted
+
+2023.02.21.
+Debugged wildcard matching error (it had to do with wire protocol sending over first char of search term rather than entire string).
+Debugged unbound local error for RECEIVED_MESSAGES due to local/global scoping issue.
+Changed server side code to the actual delete implementation: once account is deleted, remaining messages get delivered to user before the user leaves.
+
+Generally tested functions in non-grpc chat case. Just one error case.
+The initial messaging seems to work but one thing I've tried that doesn't properly work (maybe it's just me):
+if yejoo sends evan message, yejoo logs out, evan logs in, evan logs out, then upon log out evan will see message
+if yejoo sends evan message, yejoo logs out, evan logs in, evan clicks check message, then there will be no message, when evan tries to log out it will pring PONG?

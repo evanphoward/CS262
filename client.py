@@ -120,7 +120,7 @@ def list_users(s):
     if not search:
         return make_request(s, LIST, ())
     # User Input
-    return make_request(s, LIST, (search))
+    return make_request(s, LIST, (search,))
 
 def send_msg(s, user):
     receiver = input("Who would you like to send a message to? ")
@@ -133,6 +133,8 @@ def delete_account(s, user):
     return ret
 
 def main():
+    global RECEIVED_MESSAGES
+
     err, s = get_socket()
     if err != 0:
         print(s)

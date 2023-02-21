@@ -95,11 +95,6 @@ def receive_messages(receiver):
 
 """ Function to delete account """
 def delete_account(username):
-    # Return messages to sender to notify not delievered
-    for message in MESSAGES[username]:
-        return_message = "Account Deleted. Original message not delievered: " + message.message
-        MESSAGES[message.sender].append(Message(message.receiver, message.sender, return_message))
-
     # Delete Account
     del MESSAGES[username]
     del USERS[username]
