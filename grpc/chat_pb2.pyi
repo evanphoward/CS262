@@ -25,10 +25,12 @@ class Message(_message.Message):
     def __init__(self, sender: _Optional[str] = ..., receiver: _Optional[str] = ..., message: _Optional[str] = ...) -> None: ...
 
 class Response(_message.Message):
-    __slots__ = ["responseString"]
+    __slots__ = ["responseString", "retType"]
     RESPONSESTRING_FIELD_NUMBER: _ClassVar[int]
+    RETTYPE_FIELD_NUMBER: _ClassVar[int]
     responseString: str
-    def __init__(self, responseString: _Optional[str] = ...) -> None: ...
+    retType: int
+    def __init__(self, retType: _Optional[int] = ..., responseString: _Optional[str] = ...) -> None: ...
 
 class User(_message.Message):
     __slots__ = ["password", "username"]

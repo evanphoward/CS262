@@ -93,41 +93,41 @@ def delete_account(username):
 
 class ChatServerServicer(chat_pb2_grpc.ChatServerServicer):
     def Ping(self, request, context):
-        return chat_pb2_grpc.Response(retType=SUCCESS, responseString="PONG!")
+        return chat_pb2.Response(retType=SUCCESS, responseString="PONG!")
 
     def Login(self, request, context):
         login_status = login(request.username, request.password)
 
         if login_status == 0:
-            return chat_pb2_grpc.Response(retType=SUCCESS, responseString="Successfully Logged In!")
+            return chat_pb2.Response(retType=SUCCESS, responseString="Successfully Logged In!")
         elif login_status == 1:
-            return chat_pb2_grpc.Response(retType=RETRY_ERROR, responseString="Incorrect Password")
+            return chat_pb2.Response(retType=RETRY_ERROR, responseString="Incorrect Password")
         elif login_status == 2:
-            return chat_pb2_grpc.Response(retType=RETRY_ERROR, responseString="Username Not Found")
+            return chat_pb2.Response(retType=RETRY_ERROR, responseString="Username Not Found")
 
-    def Registered(self, request, context):
+    def Register(self, request, context):
         register_status = create_account(request.username, request.password)
         if register_status == 0:
-            return chat_pb2_grpc.Response(retType=SUCCESS, responseString="Successfully Registered!")
+            return chat_pb2.Response(retType=SUCCESS, responseString="Successfully Registered!")
         elif register_status == 1:
-            return chat_pb2_grpc.Response(retType=RETRY_ERROR, responseString="Username Already Exists")
+            return chat_pb2.Response(retType=RETRY_ERROR, responseString="Username Already Exists")
 
     def Logout(self, request, context):
-        return chat_pb2_grpc.Response(retType=SUCCESS, responseString="Logout Acknowledged!")
+        return chat_pb2.Response(retType=SUCCESS, responseString="Logout Acknowledged!")
 
     def SendMsg(self, request, context):
         send_status = send_message(request.sender, request.receiver, request.message)
         if send_status == 0:
-            return chat_pb2_grpc.Response(retType=SUCCESS, responseString="Successfully Sent Message!")
+            return chat_pb2.Response(retType=SUCCESS, responseString="Successfully Sent Message!")
         elif send_status == 1:
-            return chat_pb2_grpc.Response(retType=RETRY_ERROR, responseString="Receiver Username Does Not Exist")
+            return chat_pb2.Response(retType=RETRY_ERROR, responseString="Receiver Username Does Not Exist")
 
     def List(self, request, context):
-        return chat_pb2_grpc.Response(retType=SUCCESS, responseString=list_accounts(request.query))
+        return chat_pb2.Response(retType=SUCCESS, responseString=list_accounts(request.query))
 
     def Delete(self, request, context):
         delete_account(request.username)
-        return chat_pb2_grpc.Response(retType=SUCCESS, responseString="Deleted Account")
+        return chat_pb2.Response(retType=SUCCESS, responseString="Deleted Account")
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 10))

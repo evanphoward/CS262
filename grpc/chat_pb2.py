@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\"\x07\n\x05\x45mpty\"<\n\x07Message\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x10\n\x08receiver\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"*\n\x04User\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\"\n\x08Response\x12\x16\n\x0eresponseString\x18\x01 \x01(\t\"\x1a\n\tListQuery\x12\r\n\x05query\x18\x01 \x01(\t2\xe5\x01\n\nChatServer\x12\x1b\n\x04Ping\x12\x06.Empty\x1a\t.Response\"\x00\x12\x1e\n\x08Register\x12\x05.User\x1a\t.Response\"\x00\x12\x1b\n\x05Login\x12\x05.User\x1a\t.Response\"\x00\x12\x1c\n\x06Logout\x12\x05.User\x1a\t.Response\"\x00\x12 \n\x07SendMsg\x12\x08.Message\x1a\t.Response\"\x00\x12\x1f\n\x04List\x12\n.ListQuery\x1a\t.Response\"\x00\x12\x1c\n\x06\x44\x65lete\x12\x05.User\x1a\t.Response\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\"\x07\n\x05\x45mpty\"<\n\x07Message\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x10\n\x08receiver\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"*\n\x04User\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"3\n\x08Response\x12\x0f\n\x07retType\x18\x01 \x01(\x05\x12\x16\n\x0eresponseString\x18\x02 \x01(\t\"\x1a\n\tListQuery\x12\r\n\x05query\x18\x01 \x01(\t2\xe5\x01\n\nChatServer\x12\x1b\n\x04Ping\x12\x06.Empty\x1a\t.Response\"\x00\x12\x1e\n\x08Register\x12\x05.User\x1a\t.Response\"\x00\x12\x1b\n\x05Login\x12\x05.User\x1a\t.Response\"\x00\x12\x1c\n\x06Logout\x12\x05.User\x1a\t.Response\"\x00\x12 \n\x07SendMsg\x12\x08.Message\x1a\t.Response\"\x00\x12\x1f\n\x04List\x12\n.ListQuery\x1a\t.Response\"\x00\x12\x1c\n\x06\x44\x65lete\x12\x05.User\x1a\t.Response\"\x00\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chat_pb2', globals())
@@ -27,9 +27,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _USER._serialized_start=85
   _USER._serialized_end=127
   _RESPONSE._serialized_start=129
-  _RESPONSE._serialized_end=163
-  _LISTQUERY._serialized_start=165
-  _LISTQUERY._serialized_end=191
-  _CHATSERVER._serialized_start=194
-  _CHATSERVER._serialized_end=423
+  _RESPONSE._serialized_end=180
+  _LISTQUERY._serialized_start=182
+  _LISTQUERY._serialized_end=208
+  _CHATSERVER._serialized_start=211
+  _CHATSERVER._serialized_end=440
 # @@protoc_insertion_point(module_scope)

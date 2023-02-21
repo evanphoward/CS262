@@ -53,3 +53,8 @@ Thoughts on grpc for tm morning:
 3. Maybe Delete/Receive should also get user info and then stream messages
 
 Currently listed server functionalities except receiving messages implemented. Server can serve, but actual functionality not tested at all.
+Started working on client side and am getting that grpc has no attribute 'Response', not sure why this is happening. Ok figured it out, it seems the grpc.py keeps track of the rpc info and the pb2.py keeps track of the things that go on rpcs so gotta use that instead.
+Now getting Protocol message Response has no \"retType\" field." this error. Does not make much sense to me given chat.proto has this?
+python -m grpc_tools.protoc -I. --python_out=. --pyi_out=. --grpc_python_out=. ./chat.proto 
+Ran this command again and now that error is gone lol
+Login/Register (without any additional functionalities) work now I think
