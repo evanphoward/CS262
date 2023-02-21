@@ -1,3 +1,4 @@
+from concurrent import futures
 import grpc
 import chat_pb2_grpc
 import chat_pb2
@@ -115,10 +116,24 @@ class ChatServerServicer(chat_pb2_grpc.ChatServerServicer):
         return chat_pb2_grpc.Response(retType=SUCCESS, responseString="Logout Acknowledged!")
 
     def SendMsg(self, request, context):
-        return chat_pb2_grpc.Response(retType=SUCCESS, responseString="Successfully Sent Message!")
+        send_status = send_message(request.sender, request.receiver, request.message)
+        if send_status == 0:
+            return chat_pb2_grpc.Response(retType=SUCCESS, responseString="Successfully Sent Message!")
+        elif send_status == 1:
+            return chat_pb2_grpc.Response(retType=RETRY_ERROR, responseString="Receiver Username Does Not Exist")
 
     def List(self, request, context):
         return chat_pb2_grpc.Response(retType=SUCCESS, responseString=list_accounts(request.query))
 
     def Delete(self, request, context):
-        return chat_pb2_grpc.Response(retType=SUCCESS, responseString="Successfully Sent Message!")
+        delete_account(request.username)
+        return chat_pb2_grpc.Response(retType=SUCCESS, responseString="Deleted Account")
+
+def serve():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers = 10))
+    chat_pb2_grpc.add_ChatServerServicer_to_server(ChatServerServicer(), server)
+    server.add_insecure_port('[::]:50051')
+    server.start()
+    server.wait_for_termination()
+
+serve()

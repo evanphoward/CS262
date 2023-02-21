@@ -51,3 +51,5 @@ Thoughts on grpc for tm morning:
 1. Create a message-stream listener that will listen to messages from the server --> this could mean not having to deal with getting messages specifically at login?
 2. Test making List a unary_stream
 3. Maybe Delete/Receive should also get user info and then stream messages
+
+Currently listed server functionalities except receiving messages implemented. Server can serve, but actual functionality not tested at all.
