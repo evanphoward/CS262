@@ -45,8 +45,12 @@ def send_msg(stub, user):
 
 def receive_msgs(msg_iterator):
     global RECEIVED_MESSAGES
-    for msg in msg_iterator:
-        RECEIVED_MESSAGES.append("From " + msg.sender + ": " + msg.message + "\n")
+    try:
+        for msg in msg_iterator:
+            RECEIVED_MESSAGES.append("From " + msg.sender + ": " + msg.message + "\n")
+    except Exception:
+        # Exception may happen when channel closes upon logging out, we just want this thread to exit
+        return
 
 def run():
     global RECEIVED_MESSAGES
