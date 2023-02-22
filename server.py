@@ -200,7 +200,7 @@ def handle_connection(conn):
                 conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Successfully Logged In!"))
                 messages_to_deliver = receive_messages(username)
                 if messages_to_deliver:
-                    conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("New Messages:\n" + messages_to_deliver))
+                    conn.sendall((MESSAGE).to_bytes(1, byteorder='big') + pack_msg(messages_to_deliver))
             elif login_status == 1:
                 conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Incorrect Password"))
             elif login_status == 2:
