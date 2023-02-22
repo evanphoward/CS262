@@ -10,6 +10,12 @@ In the wire protocol version, our packets are generally just the arguments neede
 ### Performance Comparison
 Similar to the packet size comparison, our wire protocol version should generally be faster than the gRPC version, at least over the wire. This is because our wire protocol version is doing the bare minimum needed to order to transfer this information, with a very basic TCP socket and no metadata or protections that are implemented under the hood in gRPC. So as with the packet size comparison, we can see that we are trading off ease of use, versatility, and robustness with gRPC with the smaller packet sized and slightly better performance in the lightweight wire protocol version.
 
+# Wire Protocol Design
+## Client to Server Request
+The request from client to the server consists of a first byte that indicates the type of operation that the client wants to do and a second byte that indicates the number of arguments that the client is sending to the server. The remainder of the request is the arguments that the client is sending, where each argument consists of one byte to specify the length of the argument and the remaining bytes that actually encodes the argument.
+## Server to Client Response
+The response from server to the client consists of a first byte that indicates the success/failure of the server error or whether there are messages coming from the server to the client. The remaining bytes are a packed message that the server is sending back to the client. By packed message, we refer to a combination of one byte to indicate the length of the message string and the remaining bytes that are simply an encoding of the message string.
+
 # Engineering Journal
 ## 2/8
 ### Evan
