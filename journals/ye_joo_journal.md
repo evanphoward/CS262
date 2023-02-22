@@ -58,3 +58,7 @@ Now getting Protocol message Response has no \"retType\" field." this error. Doe
 python -m grpc_tools.protoc -I. --python_out=. --pyi_out=. --grpc_python_out=. ./chat.proto 
 Ran this command again and now that error is gone lol
 Login/Register (without any additional functionalities) work now I think
+
+Testing around a bit more.
+non-grpc: I think the error case I found earlier is still happening! yejoo registers, evan registers, evan sends yejoo message, yejoo logs in, yejoo "checks" messages, no messages appear, upon logout yejoo gets a pong.
+grpc: things seem to be working well!
