@@ -5,11 +5,10 @@ We wrote our non-gRPC version first and had all functionality complete before we
 The code is certainly much simpler in the gRPC version, with no argument packing into the wire protocol and simple one line calls to the server in many cases. Because the gRPC channels aren't explicitly available like sockets are available there are a few more metadata things like the LOGGED_IN users or needing to send the username to logout or delete accounts, but those are relatively minor additions. Simply going by lines of code, you can see that the gRPC versions are much shorter, despite being relatively the same approach to implementation (not including the gRPC stubs, of course, which does boost the line count and increase complexity, although it is more invisible complexity to us).
 
 ### Packet Size
-In the wire protocol version, our packets are generally just the arguments needed for a call plus a few extra bytes for metadata (arugment length, opcode). For the gRPC version, we send the same information through the protocol buffer, but because the protocol buffer has more metadata, the protocol buffers are going to be bigger than the custom-built very lightweight wire protocol that we wrote. 
-(TODO: Get the exact numbers for each and compare them? Should be easy to get the length of the bytes we send in the wire protocol version, idk how to see size of protocol buffer in gRPC)
+In the wire protocol version, our packets are generally just the arguments needed for a call plus a few extra bytes for metadata (arugment length, opcode). For the gRPC version, we send the same information through the protocol buffer, but because the protocol buffer has more metadata, the protocol buffers are going to be bigger than the custom-built very lightweight wire protocol that we wrote.
 
 ### Performance Comparison
-TODO: Not sure exactly how to compare these two. Time the code?
+Similar to the packet size comparison, our wire protocol version should generally be faster than the gRPC version, at least over the wire. This is because our wire protocol version is doing the bare minimum needed to order to transfer this information, with a very basic TCP socket and no metadata or protections that are implemented under the hood in gRPC. So as with the packet size comparison, we can see that we are trading off ease of use, versatility, and robustness with gRPC with the smaller packet sized and slightly better performance in the lightweight wire protocol version.
 
 # Engineering Journal
 ## 2/8

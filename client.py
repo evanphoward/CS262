@@ -42,7 +42,7 @@ def get_socket():
 """ Gets a response from server and parses it according to wire protocol """
 def parse_response(resp):
     if not resp:
-        return CONNECTION_ERROR, "Error: Lost connection to server"
+        return [CONNECTION_ERROR, "Error: Lost connection to server"]
     i = 0
     responses = []
     while i < len(resp):
