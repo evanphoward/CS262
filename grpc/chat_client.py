@@ -57,6 +57,7 @@ def run():
     with grpc.insecure_channel('localhost:50051') as channel:
         stub = chat_pb2_grpc.ChatServerStub(channel)
 
+        # on connection, user must login or register
         response, username = login_or_register(stub)
         print(response.responseString)
         if response.retType == CONNECTION_ERROR:
@@ -69,12 +70,15 @@ def run():
 
         start_new_thread(receive_msgs, (stub.GetMsgs(chat_pb2.Username(username = username)),))
 
+        # once logged in, user can use full functionality of app
         while True:
             opt = print("Welcome " + username + "! Would you like to (C)heck messages, (L)ist users, (S)end a message, (D)elete your account, or L(o)gout?")
             opt = input("").upper()
 
             while opt not in "CLSDO":
                 opt = input("Input not recognized, please type C, L, S, D, or O. ").upper()
+
+            # Check messages
             if opt == "C":
                 if RECEIVED_MESSAGES:
                     print("New Messages:")
@@ -82,16 +86,22 @@ def run():
                 else:
                     print("No New Messages!")
                 RECEIVED_MESSAGES = []
+
+            # List users on the app
             elif opt == "L":
                 response = list_users(stub)
                 print(response.responseString)
                 if response.retType == CONNECTION_ERROR:
                     break
+
+            # Send message to another user
             elif opt == "S":
                 response = send_msg(stub, username)
                 print(response.responseString)
                 if response.retType == CONNECTION_ERROR:
                     break
+
+            # Delete user's own account
             elif opt == "D":
                 response = stub.Delete(chat_pb2.Username(username = username))
                 if RECEIVED_MESSAGES:
@@ -99,6 +109,8 @@ def run():
                     print(''.join(RECEIVED_MESSAGES))
                 print(response.responseString)
                 break
+
+            # Log out
             elif opt == "O":
                 response = stub.Logout(chat_pb2.Username(username = username))
                 if RECEIVED_MESSAGES:
@@ -106,6 +118,5 @@ def run():
                     print(''.join(RECEIVED_MESSAGES))
                 print(response.responseString)
                 break
-            
 
 run()
