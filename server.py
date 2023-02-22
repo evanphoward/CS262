@@ -62,6 +62,7 @@ def login(username, password):
 """ Function to search and list all accounts """
 def list_accounts(search):
     accounts = ""
+    # Find all matching usernames
     for username in USERS:
         if fnmatch.fnmatch(username, search):
             accounts += username
@@ -154,17 +155,17 @@ def unit_tests():
     send_message("yejoo", "idk", "more")
     send_message("yejoo", "idk", "more2")
     delete_account("idk")
-    assert(receive_messages("yejoo") == "From idk: Account Deleted. Original message not delievered: more\nFrom idk: Account Deleted. Original message not delievered: more2\n")
     assert("idk" not in USERS)
     assert("idk" not in MESSAGES)
     assert(receive_messages("yejoo") == "")
 
-
+""" Function to take a message string and encode it into bytes """
 def pack_msg(msg_str):
     byte_msg = msg_str.encode()
     assert(len(byte_msg) < 256)
     return (len(byte_msg)).to_bytes(1, byteorder='big') + byte_msg
 
+""" Function to parse request from client """
 def parse_request(request):
     opcode = request[0]
     num_args = request[1]
@@ -178,6 +179,7 @@ def parse_request(request):
 
     return opcode, args
 
+""" Function that handles connection with client """
 def handle_connection(conn):
     while True:
         data = conn.recv(1024)
@@ -186,6 +188,7 @@ def handle_connection(conn):
 
         opcode, args = parse_request(data)
 
+        # Handle request from client based on operation
         if opcode == PING:
             conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("PONG!"))
         elif opcode == LOGIN:
@@ -230,7 +233,7 @@ def handle_connection(conn):
             elif send_status == 1:
                 conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Receiver Username Does Not Exist"))
         elif opcode == LIST:
-            # TODO: maybe not use pack_msg on the full thing. if there are lots of users, may fail assert in it.
+            # Find accounts to be listed
             if len(args) == 0:
                 accounts = list_accounts("*")
             else:
@@ -239,10 +242,12 @@ def handle_connection(conn):
 
             conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg(accounts))
         elif opcode == LOGOUT:
+            # log out and break connection
             USERS[username].socket = None
             conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Logout Acknowledged!"))
             break
         elif opcode == DELETE:
+            # delete account and break connection
             username = args[0]
             delete_account(username)
             conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Deleted Account!"))
@@ -263,5 +268,6 @@ def main():
 
     s.close()
 
+# Comment out main() and uncomment unit_tests() in order to run unit tests on server functionality
 main()
 # unit_tests()

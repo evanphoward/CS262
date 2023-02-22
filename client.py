@@ -13,10 +13,10 @@ LOGOUT = 4
 LIST = 5
 DELETE = 6
 NUM_ARGS = {PING: 0, REGISTER: 2, LOGIN: 2, SEND_MSG: 3, LOGOUT: 1, LIST: 1, DELETE: 1}
-REQUEST_ERRS = {PING: [], 
+REQUEST_ERRS = {PING: [],
                 REGISTER: ["Error: Username must be less than 256 characters", "Error: Password must be less than 256 characters"],
                 LOGIN:["Error: Username must be less than 256 characters", "Error: Password must be less than 256 characters"],
-                SEND_MSG: ["Error: Sender username too long, how did you mess up your own name?", "Error: Recepient Username must be less than 256 characters",  
+                SEND_MSG: ["Error: Sender username too long, how did you mess up your own name?", "Error: Recepient Username must be less than 256 characters",
                             "Error: Message must be less than 256 characters"],
                 LOGOUT: ["Error: Username must be less than 256 characters"]}
 
@@ -140,6 +140,7 @@ def main():
         print(s)
         exit()
 
+    # on connection, user must login or register
     err, msg, username = login_or_register(s)
     print(msg)
     if err == CONNECTION_ERROR:
@@ -150,12 +151,15 @@ def main():
         if err == CONNECTION_ERROR:
             exit()
 
+    # once logged in, user can use full functionality of the app
     while True:
         opt = print("Welcome " + username + "! Would you like to (C)heck messages, (L)ist users, (S)end a message, (D)elete your account, or L(o)gout?")
         opt = input("").upper()
 
         while opt not in "CLSDO":
             opt = input("Input not recognized, please type C, L, S, D, or O. ").upper()
+
+        # Check messages
         if opt == "C":
             ping(s)
             if RECEIVED_MESSAGES:
@@ -164,18 +168,24 @@ def main():
             else:
                 print("No New Messages!")
             RECEIVED_MESSAGES = []
+
+        # List users on the app
         elif opt == "L":
             err, msg = list_users(s)
             print(msg)
             if err == CONNECTION_ERROR:
                 s.close()
                 break
+
+        # Send message to another user
         elif opt == "S":
             err, msg = send_msg(s, username)
             print(msg)
             if err == CONNECTION_ERROR:
                 s.close()
                 break
+
+        # Delete user's own account
         elif opt == "D":
             _, msg = delete_account(s, username)
             if RECEIVED_MESSAGES:
@@ -183,6 +193,8 @@ def main():
                 print(''.join(RECEIVED_MESSAGES))
             print(msg)
             break
+
+        # Log out
         elif opt == "O":
             _, msg = logout(s)
             if RECEIVED_MESSAGES:
@@ -190,5 +202,5 @@ def main():
                 print(''.join(RECEIVED_MESSAGES))
             print(msg)
             break
-    
+
 main()
