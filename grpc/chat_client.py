@@ -4,6 +4,9 @@ import chat_pb2
 from _thread import *
 import threading
 
+HOST = "127.0.0.1"
+PORT = 65432
+
 SUCCESS = 0
 CONNECTION_ERROR = 1
 RETRY_ERROR = 2
@@ -54,7 +57,7 @@ def receive_msgs(msg_iterator):
 
 def run():
     global RECEIVED_MESSAGES
-    with grpc.insecure_channel('localhost:50051') as channel:
+    with grpc.insecure_channel(HOST + ":" + str(PORT)) as channel:
         stub = chat_pb2_grpc.ChatServerStub(channel)
 
         # on connection, user must login or register

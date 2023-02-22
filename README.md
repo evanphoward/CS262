@@ -3,8 +3,10 @@ Design Project 1: Wire Protocol, CS 262 Spring 2023
 This is a messenger application with a Python backend. It has two separate implementations: one implementation where we have defined our own wire protocol and another implementation where we use gRPC.
 
 # Setup
-TODO: do they need to install anything?
-TODO: do they need to modify code to specify the host/port? (and should we explain this?)
+1. The only required library is gRPC for the gRPC version, which you can install via pip or conda if you don't have it installed. The wire protocol version should work out of the box.
+2. Find your local IP Address and replace the HOST variable with that address in `client.py` and `server.py` (for wire protocol) and `grpc/chat_client.py` and `grpc/chat_server.py` (for gRPC).
+    * For Mac, you can find this value by running `ifconfig ev0` in the terminal and copying the value after `inet`
+    * For Windows, you can find this value by running `ipconfig` in the command prompt and copying the value after `IPv4 Address`
 
 # How to Use
 ## Wire Protocol Version

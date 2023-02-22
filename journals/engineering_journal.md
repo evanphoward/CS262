@@ -16,7 +16,7 @@ TODO: Not sure exactly how to compare these two. Time the code?
 ### Evan
 Copied client / server stub files from TCP/IP intro tutorials online (https://realpython.com/python-sockets/ and https://www.geeksforgeeks.org/socket-programming-cc/).
 One-to-one message passing out of the box for both the python-python communication and python-C++ communication on the same computer.
-Used public ip address and localhost to try and host server and both failed. Found local IP address using "ifconfig ev0" and successfully established connection with Ye Joo's computer.
+Used public ip address and localhost to try and host server and both failed. Found local IP address using "ifconfig en0" and successfully established connection with Ye Joo's computer.
 Talked about how to write a wire protocol, options like sending things as a string, constructing JSON as a string, arranging the bits and marshaling the data according to a wire protocol we write.
 
 ### Ye Joo
