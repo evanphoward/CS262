@@ -177,17 +177,17 @@ def main():
                 s.close()
                 break
         elif opt == "D":
+            _, msg = delete_account(s, username)
             if RECEIVED_MESSAGES:
                 print("Before you go, here are your new messages:")
                 print(''.join(RECEIVED_MESSAGES))
-            _, msg = delete_account(s, username)
             print(msg)
             break
         elif opt == "O":
+            _, msg = logout(s)
             if RECEIVED_MESSAGES:
                 print("Before you go, here are your new messages:")
                 print(''.join(RECEIVED_MESSAGES))
-            _, msg = logout(s)
             print(msg)
             break
     

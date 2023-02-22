@@ -39,3 +39,9 @@ class User(_message.Message):
     password: str
     username: str
     def __init__(self, username: _Optional[str] = ..., password: _Optional[str] = ...) -> None: ...
+
+class Username(_message.Message):
+    __slots__ = ["username"]
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    username: str
+    def __init__(self, username: _Optional[str] = ...) -> None: ...

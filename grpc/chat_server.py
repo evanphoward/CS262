@@ -2,11 +2,13 @@ from concurrent import futures
 import grpc
 import chat_pb2_grpc
 import chat_pb2
+import fnmatch
 
 HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
 USERS = {}
+LOGGED_IN = set()
 MESSAGES = {}
 
 SUCCESS = 0
@@ -19,7 +21,6 @@ class User():
     def __init__(self, username, password):
         self.username = username
         self.password = hash(password)
-        self.socket = None
 
 """ Class that represents a Message on the application """
 class Message():
@@ -37,6 +38,7 @@ def create_account(username, password):
     # Appends account to list of users otherwise
     USERS[username] = User(username, password)
     MESSAGES[username] = []
+    LOGGED_IN.add(username)
     return 0
 
 """ Function to log in """
@@ -44,6 +46,7 @@ def login(username, password):
     if username in USERS:
         # If there is a matching username, either log them in or fail based on password
         if USERS[username].password == hash(password):
+            LOGGED_IN.add(username)
             return 0
         else:
             return 1
@@ -65,10 +68,8 @@ def list_accounts(search):
 def send_message(sender, receiver, message):
     # Find receiver and queue message
     if receiver in USERS:
-        if USERS[receiver].socket:
-            USERS[receiver].socket.sendall((MESSAGE).to_bytes(1, byteorder='big') + pack_msg("From " + sender + ": " + message + "\n"))
-        else:
-            MESSAGES[receiver].append(Message(sender, receiver, message))
+        # Do something
+        MESSAGES[receiver].append(Message(sender, receiver, message))
         return 0
 
     # Could not find receiver. Fail.
@@ -113,6 +114,7 @@ class ChatServerServicer(chat_pb2_grpc.ChatServerServicer):
             return chat_pb2.Response(retType=RETRY_ERROR, responseString="Username Already Exists")
 
     def Logout(self, request, context):
+        LOGGED_IN.remove(request.username)
         return chat_pb2.Response(retType=SUCCESS, responseString="Logout Acknowledged!")
 
     def SendMsg(self, request, context):
@@ -128,6 +130,13 @@ class ChatServerServicer(chat_pb2_grpc.ChatServerServicer):
     def Delete(self, request, context):
         delete_account(request.username)
         return chat_pb2.Response(retType=SUCCESS, responseString="Deleted Account")
+
+    def GetMsgs(self, request, context):
+        while request.username in LOGGED_IN:
+            if MESSAGES[request.username]:
+                for msg in MESSAGES[request.username]:
+                    yield chat_pb2.Message(sender = msg.sender, receiver = msg.receiver, message = msg.message)
+                MESSAGES[request.username] = []
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 10))
