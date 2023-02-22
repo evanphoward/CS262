@@ -4,8 +4,8 @@ import chat_pb2_grpc
 import chat_pb2
 import fnmatch
 
-HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
-PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
+HOST = "127.0.0.1"
+PORT = 65432
 
 USERS = {}
 LOGGED_IN = set()
@@ -201,7 +201,8 @@ class ChatServerServicer(chat_pb2_grpc.ChatServerServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers = 10))
     chat_pb2_grpc.add_ChatServerServicer_to_server(ChatServerServicer(), server)
-    server.add_insecure_port('[::]:50051')
+    # server.add_insecure_port('[::]:65432')
+    server.add_insecure_port(HOST + ":" + str(PORT))
     server.start()
     server.wait_for_termination()
 
