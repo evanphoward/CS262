@@ -7,14 +7,13 @@ import random
 
 CLOCK = 0
 MESSAGE_QUEUE = []
-HOST = "127.0.0.1" # Being run on local host
-PORTS = {1: 60000, 2: 60001, 3: 60002} # Ports for each machine
 QUEUE_LOCK = threading.Lock()
 
 SEND_TO_ONE = 1
 SEND_TO_TWO = 2
 SEND_TO_BOTH = 3
 
+LOG = -1
 HOST = "127.0.0.1" # Being run on local host
 PORTS = {1: 60000, 2: 60001, 3: 60002} # Ports for each machine
 
@@ -37,7 +36,7 @@ def listen(s):
         if not msg:
             return
         try:
-            receiving_time = int(msg)
+            receiving_time = int(msg.decode())
             QUEUE_LOCK.acquire()
             MESSAGE_QUEUE.append(receiving_time)
             QUEUE_LOCK.release()
@@ -45,34 +44,33 @@ def listen(s):
             print("ValueError: Non-numeric message sent: " + msg)
 
 def tick(s1, s2):
-    global MESSAGE_QUEUE, CLOCK
+    global MESSAGE_QUEUE, CLOCK, LOG
     if MESSAGE_QUEUE:
-        action = "Action: Received Message"
         msg = MESSAGE_QUEUE.pop(0)
         CLOCK = max(msg, CLOCK) + 1
+        action = "Received Message, " + str(len(MESSAGE_QUEUE)) + " messages remaining"
     else:
         opcode = random.randint(1, 10)
         if opcode == SEND_TO_ONE:
             # TODO: Have some identification of s1 and s2 for logging
-            action = "Action: Sent Message to "
-            s1.sendall(str(CLOCK))
+            action = "Sent Message to 1"
+            s1.sendall(str(CLOCK).encode())
         elif opcode == SEND_TO_TWO:
-            action = "Action: Sent Message to "
-            s2.sendall(str(CLOCK))
+            action = "Sent Message to 2"
+            s2.sendall(str(CLOCK).encode())
         elif opcode == SEND_TO_BOTH:
-            action = "Action: Sent Message to both processes"
-            s1.sendall(str(CLOCK))
-            s2.sendall(str(CLOCK))
+            action = "Sent Message to both processes"
+            s1.sendall(str(CLOCK).encode())
+            s2.sendall(str(CLOCK).encode())
         else:
-            action = "Action: Internal Event"
+            action = "Internal Event"
         CLOCK += 1
-    write_to_log(action + ", System Time: " + time.strftime('%H:%M:%S', time.time()) + ", Logical Clock" + CLOCK)
+    print(time.strftime('%H:%M:%S', time.localtime()) + " / " + str(CLOCK) + ": " + action)
+    LOG.write(time.strftime('%H:%M:%S', time.localtime()) + " / " + str(CLOCK) + ": " + action + "\n")
 
-def write_to_log(log):
-    pass
-
-def main(machine_id):
-    clock_speed = random.randint(1, 6)
+def initialize(machine_id):
+    global LOG
+    LOG = open("logs/log-" + str(machine_id), "w")
 
     # TODO: this is really dirty but seems much less complicated to do it this way lol
     sockets = []
@@ -129,28 +127,29 @@ def main(machine_id):
         start_new_thread(listen, (s2,))
         sockets.append(s1)
         sockets.append(s1)
-
-    s1 = sockets[0]
-    s2 = sockets[1]
+        
+    clock_speed = random.randint(1, 6)
     start = time.time()
     period = 1.0 / clock_speed
+    LOG.write("Initialization Completed, Clock Speed " + str(clock_speed))
     while True:
         if (time.time() - start) > period:
             start += period
-            tick(s1, s2)
+            tick(sockets[0], sockets[1])
 
-# TODO: naming wise, maybe this should be the main. leaving it out for now
-if len(sys.argv) != 2:
-    print("Must provide the process id argument")
-    exit()
+def main():
+    if len(sys.argv) != 2:
+        print("Must provide the process id argument")
+        return
+    if not sys.argv[1].isdigit():
+        print("process id argument must be an integer")
+        return
 
-if not sys.argv[1].isdigit():
-    print("process id argument must be an integer")
-    exit()
-else:
     process_id = int(sys.argv[1])
     if process_id in [1, 2, 3]:
-        main(process_id)
+        initialize(process_id)
     else:
         print("Must provide a valid process_id argument: 1, 2, 3")
         exit()
+
+main()
