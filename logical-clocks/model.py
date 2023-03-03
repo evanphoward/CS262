@@ -75,16 +75,23 @@ def main(machine_id):
     clock_speed = random.randint(1, 6)
 
     # TODO: this is really dirty but seems much less complicated to do it this way lol
+    sockets = []
+
+    # machine 1 waits for 2 connections
     if machine_id == 1:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((HOST, PORTS[machine_id]))
         s.listen()
 
-        while True:
+        conns = 0
+        while conns < 2:
             conn, addr = s.accept()
             print('Connected to: ' + addr[0] + ':' + str(addr[1]))
             start_new_thread(listen, (conn,))
+            sockets.append(conn)
+            conns += 1
 
+    # machine 2 connects to machine 1 and waits for 1 connection
     elif machine_id == 2:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((HOST, PORTS[machine_id]))
@@ -96,15 +103,18 @@ def main(machine_id):
                 break
 
         start_new_thread(listen, (s1,))
+        sockets.append(s1)
 
-        while True:
+        conns = 0
+        while conns < 1:
             conn, addr = s.accept()
             print('Connected to: ' + addr[0] + ':' + str(addr[1]))
             start_new_thread(listen, (conn,))
+            sockets.append(conn)
+            conns += 1
 
+    # machine 3 connects to machine 1 and machine 2
     elif machine_id == 3:
-        s1 = None
-        s2 = None
         while True:
             err, s1 = get_socket(1)
             if err == 0:
@@ -117,7 +127,11 @@ def main(machine_id):
 
         start_new_thread(listen, (s1,))
         start_new_thread(listen, (s2,))
+        sockets.append(s1)
+        sockets.append(s1)
 
+    s1 = sockets[0]
+    s2 = sockets[1]
     start = time.time()
     period = 1.0 / clock_speed
     while True:
