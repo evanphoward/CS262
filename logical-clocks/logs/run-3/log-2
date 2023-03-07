@@ -1,0 +1,451 @@
+Initialization Completed, Clock Speed 5
+21:11:20 / 1: Internal Event
+21:11:20 / 2: Sent Message to 2
+21:11:21 / 3: Internal Event
+21:11:21 / 4: Internal Event
+21:11:21 / 5: Sent Message to both processes
+21:11:21 / 6: Received Message, 1 messages remaining
+21:11:21 / 7: Received Message, 0 messages remaining
+21:11:22 / 8: Internal Event
+21:11:22 / 9: Internal Event
+21:11:22 / 10: Internal Event
+21:11:22 / 11: Sent Message to both processes
+21:11:22 / 12: Internal Event
+21:11:23 / 13: Internal Event
+21:11:23 / 14: Internal Event
+21:11:23 / 15: Internal Event
+21:11:23 / 16: Internal Event
+21:11:23 / 17: Internal Event
+21:11:24 / 18: Internal Event
+21:11:24 / 19: Sent Message to both processes
+21:11:24 / 20: Sent Message to both processes
+21:11:24 / 21: Internal Event
+21:11:24 / 22: Internal Event
+21:11:25 / 23: Internal Event
+21:11:25 / 24: Sent Message to 2
+21:11:25 / 25: Internal Event
+21:11:25 / 26: Sent Message to 2
+21:11:25 / 27: Internal Event
+21:11:26 / 28: Sent Message to 2
+21:11:26 / 29: Internal Event
+21:11:26 / 30: Internal Event
+21:11:26 / 31: Internal Event
+21:11:26 / 32: Internal Event
+21:11:27 / 33: Sent Message to 1
+21:11:27 / 34: Internal Event
+21:11:27 / 35: Sent Message to 1
+21:11:27 / 36: Received Message, 0 messages remaining
+21:11:27 / 37: Internal Event
+21:11:28 / 38: Received Message, 0 messages remaining
+21:11:28 / 39: Sent Message to 2
+21:11:28 / 40: Internal Event
+21:11:28 / 41: Internal Event
+21:11:28 / 42: Internal Event
+21:11:29 / 43: Sent Message to 1
+21:11:29 / 44: Internal Event
+21:11:29 / 45: Internal Event
+21:11:29 / 46: Received Message, 0 messages remaining
+21:11:29 / 47: Internal Event
+21:11:30 / 48: Sent Message to 2
+21:11:30 / 49: Internal Event
+21:11:30 / 50: Internal Event
+21:11:30 / 51: Internal Event
+21:11:30 / 52: Sent Message to both processes
+21:11:31 / 53: Sent Message to both processes
+21:11:31 / 54: Sent Message to 2
+21:11:31 / 55: Sent Message to 1
+21:11:31 / 56: Internal Event
+21:11:31 / 57: Internal Event
+21:11:32 / 58: Sent Message to both processes
+21:11:32 / 59: Internal Event
+21:11:32 / 60: Sent Message to 1
+21:11:32 / 61: Sent Message to 1
+21:11:32 / 62: Internal Event
+21:11:33 / 63: Internal Event
+21:11:33 / 64: Internal Event
+21:11:33 / 65: Internal Event
+21:11:33 / 66: Received Message, 0 messages remaining
+21:11:33 / 67: Internal Event
+21:11:34 / 68: Sent Message to 1
+21:11:34 / 69: Internal Event
+21:11:34 / 70: Internal Event
+21:11:34 / 71: Internal Event
+21:11:34 / 72: Sent Message to both processes
+21:11:35 / 73: Internal Event
+21:11:35 / 74: Internal Event
+21:11:35 / 75: Internal Event
+21:11:35 / 76: Internal Event
+21:11:35 / 77: Sent Message to 2
+21:11:36 / 78: Sent Message to 2
+21:11:36 / 79: Internal Event
+21:11:36 / 80: Sent Message to 1
+21:11:36 / 81: Internal Event
+21:11:36 / 82: Sent Message to both processes
+21:11:37 / 83: Sent Message to 1
+21:11:37 / 84: Sent Message to 2
+21:11:37 / 85: Internal Event
+21:11:37 / 86: Internal Event
+21:11:37 / 87: Internal Event
+21:11:38 / 88: Internal Event
+21:11:38 / 89: Sent Message to 2
+21:11:38 / 90: Internal Event
+21:11:38 / 91: Sent Message to 1
+21:11:38 / 92: Internal Event
+21:11:39 / 93: Sent Message to 1
+21:11:39 / 94: Internal Event
+21:11:39 / 95: Sent Message to 2
+21:11:39 / 96: Received Message, 0 messages remaining
+21:11:39 / 97: Sent Message to 2
+21:11:40 / 98: Internal Event
+21:11:40 / 99: Internal Event
+21:11:40 / 100: Internal Event
+21:11:40 / 101: Sent Message to both processes
+21:11:40 / 102: Internal Event
+21:11:41 / 103: Internal Event
+21:11:41 / 104: Internal Event
+21:11:41 / 105: Internal Event
+21:11:41 / 106: Sent Message to 2
+21:11:41 / 107: Internal Event
+21:11:42 / 108: Internal Event
+21:11:42 / 109: Internal Event
+21:11:42 / 110: Internal Event
+21:11:42 / 111: Internal Event
+21:11:42 / 112: Internal Event
+21:11:43 / 113: Internal Event
+21:11:43 / 114: Sent Message to 2
+21:11:43 / 115: Sent Message to both processes
+21:11:43 / 116: Internal Event
+21:11:43 / 117: Internal Event
+21:11:44 / 118: Internal Event
+21:11:44 / 119: Internal Event
+21:11:44 / 120: Internal Event
+21:11:44 / 121: Internal Event
+21:11:44 / 122: Internal Event
+21:11:45 / 123: Sent Message to 2
+21:11:45 / 124: Sent Message to 1
+21:11:45 / 125: Sent Message to 1
+21:11:45 / 126: Sent Message to 2
+21:11:45 / 127: Internal Event
+21:11:46 / 128: Internal Event
+21:11:46 / 129: Internal Event
+21:11:46 / 130: Internal Event
+21:11:46 / 131: Internal Event
+21:11:46 / 132: Sent Message to 1
+21:11:47 / 133: Internal Event
+21:11:47 / 134: Internal Event
+21:11:47 / 135: Internal Event
+21:11:47 / 136: Sent Message to 2
+21:11:47 / 137: Internal Event
+21:11:48 / 138: Internal Event
+21:11:48 / 139: Internal Event
+21:11:48 / 140: Sent Message to both processes
+21:11:48 / 141: Received Message, 0 messages remaining
+21:11:48 / 142: Sent Message to 1
+21:11:49 / 143: Internal Event
+21:11:49 / 144: Internal Event
+21:11:49 / 145: Internal Event
+21:11:49 / 146: Received Message, 0 messages remaining
+21:11:49 / 147: Internal Event
+21:11:50 / 148: Sent Message to 1
+21:11:50 / 149: Internal Event
+21:11:50 / 150: Internal Event
+21:11:50 / 151: Sent Message to 1
+21:11:50 / 152: Internal Event
+21:11:51 / 153: Sent Message to 2
+21:11:51 / 154: Internal Event
+21:11:51 / 155: Sent Message to 1
+21:11:51 / 156: Internal Event
+21:11:51 / 157: Internal Event
+21:11:52 / 158: Internal Event
+21:11:52 / 159: Internal Event
+21:11:52 / 160: Internal Event
+21:11:52 / 161: Internal Event
+21:11:52 / 162: Sent Message to both processes
+21:11:53 / 163: Internal Event
+21:11:53 / 164: Sent Message to 2
+21:11:53 / 165: Internal Event
+21:11:53 / 166: Internal Event
+21:11:53 / 167: Internal Event
+21:11:54 / 168: Internal Event
+21:11:54 / 169: Internal Event
+21:11:54 / 170: Sent Message to 2
+21:11:54 / 171: Internal Event
+21:11:54 / 172: Internal Event
+21:11:55 / 173: Internal Event
+21:11:55 / 174: Internal Event
+21:11:55 / 175: Internal Event
+21:11:55 / 176: Received Message, 0 messages remaining
+21:11:55 / 177: Internal Event
+21:11:56 / 178: Received Message, 0 messages remaining
+21:11:56 / 179: Internal Event
+21:11:56 / 180: Internal Event
+21:11:56 / 181: Received Message, 0 messages remaining
+21:11:56 / 182: Sent Message to 2
+21:11:57 / 183: Internal Event
+21:11:57 / 184: Internal Event
+21:11:57 / 185: Sent Message to both processes
+21:11:57 / 186: Internal Event
+21:11:57 / 187: Internal Event
+21:11:58 / 188: Internal Event
+21:11:58 / 189: Internal Event
+21:11:58 / 190: Internal Event
+21:11:58 / 191: Received Message, 0 messages remaining
+21:11:58 / 192: Internal Event
+21:11:59 / 193: Sent Message to 1
+21:11:59 / 194: Internal Event
+21:11:59 / 195: Internal Event
+21:11:59 / 196: Received Message, 0 messages remaining
+21:11:59 / 197: Internal Event
+21:12:00 / 198: Sent Message to both processes
+21:12:00 / 199: Internal Event
+21:12:00 / 200: Sent Message to 1
+21:12:00 / 201: Internal Event
+21:12:00 / 202: Internal Event
+21:12:01 / 203: Internal Event
+21:12:01 / 204: Internal Event
+21:12:01 / 205: Sent Message to 2
+21:12:01 / 206: Internal Event
+21:12:01 / 207: Internal Event
+21:12:02 / 208: Sent Message to 2
+21:12:02 / 209: Internal Event
+21:12:02 / 210: Sent Message to 2
+21:12:02 / 211: Internal Event
+21:12:02 / 212: Internal Event
+21:12:03 / 213: Internal Event
+21:12:03 / 214: Sent Message to 2
+21:12:03 / 215: Sent Message to 2
+21:12:03 / 216: Internal Event
+21:12:03 / 217: Internal Event
+21:12:04 / 218: Sent Message to both processes
+21:12:04 / 219: Internal Event
+21:12:04 / 220: Internal Event
+21:12:04 / 221: Internal Event
+21:12:04 / 222: Internal Event
+21:12:05 / 223: Received Message, 0 messages remaining
+21:12:05 / 224: Sent Message to both processes
+21:12:05 / 225: Internal Event
+21:12:05 / 226: Internal Event
+21:12:05 / 227: Internal Event
+21:12:06 / 228: Internal Event
+21:12:06 / 229: Internal Event
+21:12:06 / 230: Sent Message to both processes
+21:12:06 / 231: Internal Event
+21:12:06 / 232: Internal Event
+21:12:07 / 233: Sent Message to 2
+21:12:07 / 234: Sent Message to both processes
+21:12:07 / 235: Internal Event
+21:12:07 / 236: Sent Message to both processes
+21:12:07 / 237: Internal Event
+21:12:08 / 238: Internal Event
+21:12:08 / 239: Sent Message to 1
+21:12:08 / 240: Sent Message to 2
+21:12:08 / 241: Sent Message to 2
+21:12:08 / 242: Internal Event
+21:12:09 / 243: Sent Message to both processes
+21:12:09 / 244: Sent Message to 1
+21:12:09 / 245: Sent Message to 1
+21:12:09 / 246: Internal Event
+21:12:09 / 247: Internal Event
+21:12:10 / 248: Internal Event
+21:12:10 / 249: Sent Message to 1
+21:12:10 / 250: Internal Event
+21:12:10 / 251: Internal Event
+21:12:10 / 252: Internal Event
+21:12:11 / 253: Internal Event
+21:12:11 / 254: Sent Message to both processes
+21:12:11 / 255: Sent Message to both processes
+21:12:11 / 256: Internal Event
+21:12:11 / 257: Internal Event
+21:12:12 / 258: Internal Event
+21:12:12 / 259: Internal Event
+21:12:12 / 260: Internal Event
+21:12:12 / 261: Internal Event
+21:12:12 / 262: Internal Event
+21:12:13 / 263: Sent Message to 1
+21:12:13 / 264: Internal Event
+21:12:13 / 265: Internal Event
+21:12:13 / 266: Internal Event
+21:12:13 / 267: Sent Message to 2
+21:12:14 / 268: Internal Event
+21:12:14 / 269: Internal Event
+21:12:14 / 270: Internal Event
+21:12:14 / 271: Internal Event
+21:12:14 / 272: Internal Event
+21:12:15 / 273: Internal Event
+21:12:15 / 274: Internal Event
+21:12:15 / 275: Sent Message to both processes
+21:12:15 / 276: Sent Message to both processes
+21:12:15 / 277: Sent Message to both processes
+21:12:16 / 278: Internal Event
+21:12:16 / 279: Internal Event
+21:12:16 / 280: Internal Event
+21:12:16 / 281: Internal Event
+21:12:16 / 282: Internal Event
+21:12:17 / 283: Internal Event
+21:12:17 / 284: Internal Event
+21:12:17 / 285: Sent Message to both processes
+21:12:17 / 286: Received Message, 0 messages remaining
+21:12:17 / 287: Sent Message to 2
+21:12:18 / 288: Sent Message to both processes
+21:12:18 / 289: Sent Message to both processes
+21:12:18 / 290: Sent Message to 2
+21:12:18 / 291: Sent Message to 2
+21:12:18 / 292: Internal Event
+21:12:19 / 293: Sent Message to 1
+21:12:19 / 294: Sent Message to 2
+21:12:19 / 295: Sent Message to 1
+21:12:19 / 296: Sent Message to 1
+21:12:19 / 297: Sent Message to 1
+21:12:20 / 298: Internal Event
+21:12:20 / 299: Sent Message to both processes
+21:12:20 / 300: Internal Event
+21:12:20 / 301: Internal Event
+21:12:20 / 302: Internal Event
+21:12:21 / 303: Internal Event
+21:12:21 / 304: Internal Event
+21:12:21 / 305: Sent Message to 1
+21:12:21 / 306: Internal Event
+21:12:21 / 307: Sent Message to 1
+21:12:22 / 308: Sent Message to 2
+21:12:22 / 309: Internal Event
+21:12:22 / 310: Internal Event
+21:12:22 / 311: Internal Event
+21:12:22 / 312: Sent Message to 1
+21:12:23 / 313: Sent Message to 1
+21:12:23 / 314: Sent Message to 2
+21:12:23 / 315: Internal Event
+21:12:23 / 316: Internal Event
+21:12:23 / 317: Internal Event
+21:12:24 / 318: Received Message, 0 messages remaining
+21:12:24 / 319: Internal Event
+21:12:24 / 320: Internal Event
+21:12:24 / 321: Internal Event
+21:12:24 / 322: Internal Event
+21:12:25 / 323: Internal Event
+21:12:25 / 324: Internal Event
+21:12:25 / 325: Internal Event
+21:12:25 / 326: Internal Event
+21:12:25 / 327: Internal Event
+21:12:26 / 328: Received Message, 0 messages remaining
+21:12:26 / 329: Internal Event
+21:12:26 / 330: Internal Event
+21:12:26 / 331: Internal Event
+21:12:26 / 332: Sent Message to 2
+21:12:27 / 333: Sent Message to 2
+21:12:27 / 334: Internal Event
+21:12:27 / 335: Internal Event
+21:12:27 / 336: Sent Message to both processes
+21:12:27 / 337: Internal Event
+21:12:28 / 338: Sent Message to 2
+21:12:28 / 339: Internal Event
+21:12:28 / 340: Internal Event
+21:12:28 / 341: Sent Message to 1
+21:12:28 / 342: Sent Message to 1
+21:12:29 / 343: Sent Message to 2
+21:12:29 / 344: Sent Message to both processes
+21:12:29 / 345: Internal Event
+21:12:29 / 346: Internal Event
+21:12:29 / 347: Internal Event
+21:12:30 / 348: Internal Event
+21:12:30 / 349: Internal Event
+21:12:30 / 350: Sent Message to 1
+21:12:30 / 351: Internal Event
+21:12:30 / 352: Internal Event
+21:12:31 / 353: Internal Event
+21:12:31 / 354: Internal Event
+21:12:31 / 355: Internal Event
+21:12:31 / 356: Internal Event
+21:12:31 / 357: Internal Event
+21:12:32 / 358: Internal Event
+21:12:32 / 359: Internal Event
+21:12:32 / 360: Internal Event
+21:12:32 / 361: Internal Event
+21:12:32 / 362: Sent Message to 2
+21:12:33 / 363: Internal Event
+21:12:33 / 364: Internal Event
+21:12:33 / 365: Internal Event
+21:12:33 / 366: Sent Message to both processes
+21:12:33 / 367: Internal Event
+21:12:34 / 368: Internal Event
+21:12:34 / 369: Internal Event
+21:12:34 / 370: Sent Message to 1
+21:12:34 / 371: Internal Event
+21:12:34 / 372: Sent Message to 2
+21:12:35 / 373: Internal Event
+21:12:35 / 374: Sent Message to 1
+21:12:35 / 375: Internal Event
+21:12:35 / 376: Internal Event
+21:12:35 / 377: Internal Event
+21:12:36 / 378: Internal Event
+21:12:36 / 379: Sent Message to both processes
+21:12:36 / 380: Sent Message to 2
+21:12:36 / 381: Sent Message to both processes
+21:12:36 / 382: Sent Message to 2
+21:12:37 / 383: Internal Event
+21:12:37 / 384: Sent Message to 2
+21:12:37 / 385: Sent Message to both processes
+21:12:37 / 386: Internal Event
+21:12:37 / 387: Sent Message to both processes
+21:12:38 / 388: Internal Event
+21:12:38 / 389: Internal Event
+21:12:38 / 390: Sent Message to 1
+21:12:38 / 391: Sent Message to both processes
+21:12:38 / 392: Internal Event
+21:12:39 / 393: Internal Event
+21:12:39 / 394: Internal Event
+21:12:39 / 395: Internal Event
+21:12:39 / 396: Internal Event
+21:12:39 / 397: Internal Event
+21:12:40 / 398: Internal Event
+21:12:40 / 399: Internal Event
+21:12:40 / 400: Internal Event
+21:12:40 / 401: Sent Message to 2
+21:12:40 / 402: Sent Message to 2
+21:12:41 / 403: Internal Event
+21:12:41 / 404: Internal Event
+21:12:41 / 405: Internal Event
+21:12:41 / 406: Internal Event
+21:12:41 / 407: Sent Message to both processes
+21:12:42 / 408: Internal Event
+21:12:42 / 409: Sent Message to 1
+21:12:42 / 410: Internal Event
+21:12:42 / 411: Sent Message to 1
+21:12:42 / 412: Internal Event
+21:12:43 / 413: Internal Event
+21:12:43 / 414: Internal Event
+21:12:43 / 415: Internal Event
+21:12:43 / 416: Internal Event
+21:12:43 / 417: Sent Message to 2
+21:12:44 / 418: Internal Event
+21:12:44 / 419: Internal Event
+21:12:44 / 420: Internal Event
+21:12:44 / 421: Sent Message to both processes
+21:12:44 / 422: Internal Event
+21:12:45 / 423: Internal Event
+21:12:45 / 424: Internal Event
+21:12:45 / 425: Internal Event
+21:12:45 / 426: Internal Event
+21:12:45 / 427: Internal Event
+21:12:46 / 428: Sent Message to 1
+21:12:46 / 429: Sent Message to 1
+21:12:46 / 430: Internal Event
+21:12:46 / 431: Internal Event
+21:12:46 / 432: Internal Event
+21:12:47 / 433: Received Message, 0 messages remaining
+21:12:47 / 434: Sent Message to 2
+21:12:47 / 435: Internal Event
+21:12:47 / 436: Sent Message to 1
+21:12:47 / 437: Internal Event
+21:12:48 / 438: Internal Event
+21:12:48 / 439: Internal Event
+21:12:48 / 440: Sent Message to 2
+21:12:48 / 441: Internal Event
+21:12:48 / 442: Internal Event
+21:12:49 / 443: Internal Event
+21:12:49 / 444: Internal Event
+21:12:49 / 445: Sent Message to 2
+21:12:49 / 446: Internal Event
+21:12:49 / 447: Internal Event
+21:12:50 / 448: Internal Event
+21:12:50 / 449: Sent Message to 2
+21:12:50 / 450: Internal Event

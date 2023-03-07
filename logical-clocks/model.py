@@ -13,7 +13,8 @@ SEND_TO_ONE = 1
 SEND_TO_TWO = 2
 SEND_TO_BOTH = 3
 
-LOG = -1
+TIME_LIMIT_S = 90
+
 HOST = "127.0.0.1" # Being run on local host
 PORTS = {1: 60000, 2: 60001, 3: 60002} # Ports for each machine
 
@@ -36,17 +37,19 @@ def listen(s):
         if not msg:
             return
         try:
-            receiving_time = int(msg.decode())
             QUEUE_LOCK.acquire()
-            MESSAGE_QUEUE.append(receiving_time)
+            MESSAGE_QUEUE.append(int(msg.decode()))
             QUEUE_LOCK.release()
         except ValueError:
             print("ValueError: Non-numeric message sent: " + msg)
 
-def tick(s1, s2):
-    global MESSAGE_QUEUE, CLOCK, LOG
+def tick(s1, s2, log_txt, log_csv):
+    global MESSAGE_QUEUE, CLOCK
+    opcode = 0
     if MESSAGE_QUEUE:
+        QUEUE_LOCK.acquire()
         msg = MESSAGE_QUEUE.pop(0)
+        QUEUE_LOCK.release()
         CLOCK = max(msg, CLOCK) + 1
         action = "Received Message, " + str(len(MESSAGE_QUEUE)) + " messages remaining"
     else:
@@ -66,11 +69,13 @@ def tick(s1, s2):
             action = "Internal Event"
         CLOCK += 1
     print(time.strftime('%H:%M:%S', time.localtime()) + " / " + str(CLOCK) + ": " + action)
-    LOG.write(time.strftime('%H:%M:%S', time.localtime()) + " / " + str(CLOCK) + ": " + action + "\n")
+    log_txt.write(time.strftime('%H:%M:%S', time.localtime()) + " / " + str(CLOCK) + ": " + action + "\n")
+    log_csv.write("{},{},{},{}\n".format(time.strftime('%H:%M:%S', time.localtime()), str(CLOCK), opcode, len(MESSAGE_QUEUE)))
 
 def initialize(machine_id):
-    global LOG
-    LOG = open("logs/log-" + str(machine_id), "w")
+    log_txt = open("logs/log-" + str(machine_id), "w")
+    log_csv = open("logs/log-" + str(machine_id) + ".csv", "w")
+    log_csv.write("System Clock,Logical Clock,Action,Messages Remaining\n")
 
     # TODO: this is really dirty but seems much less complicated to do it this way lol
     sockets = []
@@ -126,16 +131,24 @@ def initialize(machine_id):
         start_new_thread(listen, (s1,))
         start_new_thread(listen, (s2,))
         sockets.append(s1)
-        sockets.append(s1)
+        sockets.append(s2)
         
     clock_speed = random.randint(1, 6)
     start = time.time()
+    start_prog = time.time()
     period = 1.0 / clock_speed
-    LOG.write("Initialization Completed, Clock Speed " + str(clock_speed))
-    while True:
-        if (time.time() - start) > period:
-            start += period
-            tick(sockets[0], sockets[1])
+    log_txt.write("Initialization Completed, Clock Speed " + str(clock_speed) + "\n")
+    try:
+        time.sleep(machine_id / 100)
+        while True:
+            if (time.time() - start) > period:
+                start += period
+                tick(sockets[0], sockets[1], log_txt, log_csv)
+                if(time.time() - start_prog) > TIME_LIMIT_S:
+                    break
+    finally:
+        log_txt.close()
+        log_csv.close()
 
 def main():
     if len(sys.argv) != 2:

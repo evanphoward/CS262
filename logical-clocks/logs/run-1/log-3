@@ -1,0 +1,182 @@
+Initialization Completed, Clock Speed 2
+21:07:07 / 1: Received Message, 1 messages remaining
+21:07:07 / 2: Received Message, 0 messages remaining
+21:07:08 / 3: Received Message, 0 messages remaining
+21:07:08 / 5: Received Message, 0 messages remaining
+21:07:09 / 7: Received Message, 0 messages remaining
+21:07:09 / 8: Internal Event
+21:07:10 / 9: Received Message, 0 messages remaining
+21:07:10 / 11: Received Message, 0 messages remaining
+21:07:11 / 12: Internal Event
+21:07:11 / 13: Internal Event
+21:07:12 / 14: Internal Event
+21:07:12 / 15: Sent Message to both processes
+21:07:13 / 18: Received Message, 0 messages remaining
+21:07:13 / 19: Internal Event
+21:07:14 / 20: Sent Message to both processes
+21:07:14 / 21: Sent Message to both processes
+21:07:15 / 22: Sent Message to 1
+21:07:15 / 26: Received Message, 0 messages remaining
+21:07:16 / 27: Internal Event
+21:07:16 / 29: Received Message, 0 messages remaining
+21:07:17 / 30: Received Message, 0 messages remaining
+21:07:17 / 31: Sent Message to both processes
+21:07:18 / 33: Received Message, 0 messages remaining
+21:07:18 / 34: Internal Event
+21:07:19 / 35: Internal Event
+21:07:19 / 36: Internal Event
+21:07:20 / 39: Received Message, 0 messages remaining
+21:07:20 / 41: Received Message, 0 messages remaining
+21:07:21 / 43: Received Message, 0 messages remaining
+21:07:21 / 44: Sent Message to 1
+21:07:22 / 45: Internal Event
+21:07:22 / 46: Sent Message to 2
+21:07:23 / 49: Received Message, 0 messages remaining
+21:07:23 / 50: Sent Message to 2
+21:07:24 / 51: Internal Event
+21:07:24 / 53: Received Message, 0 messages remaining
+21:07:25 / 55: Received Message, 1 messages remaining
+21:07:25 / 56: Received Message, 0 messages remaining
+21:07:26 / 57: Internal Event
+21:07:26 / 58: Sent Message to 2
+21:07:27 / 59: Sent Message to 1
+21:07:27 / 60: Internal Event
+21:07:28 / 64: Received Message, 0 messages remaining
+21:07:28 / 65: Internal Event
+21:07:29 / 67: Received Message, 0 messages remaining
+21:07:29 / 68: Sent Message to both processes
+21:07:30 / 69: Internal Event
+21:07:30 / 70: Internal Event
+21:07:31 / 72: Received Message, 1 messages remaining
+21:07:31 / 73: Received Message, 1 messages remaining
+21:07:32 / 74: Received Message, 1 messages remaining
+21:07:32 / 76: Received Message, 0 messages remaining
+21:07:33 / 78: Received Message, 1 messages remaining
+21:07:33 / 79: Received Message, 1 messages remaining
+21:07:34 / 80: Received Message, 0 messages remaining
+21:07:34 / 81: Internal Event
+21:07:35 / 82: Sent Message to both processes
+21:07:35 / 83: Sent Message to 1
+21:07:36 / 84: Internal Event
+21:07:36 / 89: Received Message, 0 messages remaining
+21:07:37 / 91: Received Message, 0 messages remaining
+21:07:37 / 92: Sent Message to both processes
+21:07:38 / 93: Internal Event
+21:07:38 / 94: Sent Message to both processes
+21:07:39 / 96: Received Message, 0 messages remaining
+21:07:39 / 97: Internal Event
+21:07:40 / 100: Received Message, 0 messages remaining
+21:07:40 / 101: Received Message, 1 messages remaining
+21:07:41 / 102: Received Message, 2 messages remaining
+21:07:41 / 103: Received Message, 1 messages remaining
+21:07:42 / 104: Received Message, 1 messages remaining
+21:07:42 / 105: Received Message, 0 messages remaining
+21:07:43 / 106: Sent Message to both processes
+21:07:43 / 107: Internal Event
+21:07:44 / 108: Sent Message to 1
+21:07:44 / 109: Internal Event
+21:07:45 / 114: Received Message, 0 messages remaining
+21:07:45 / 115: Internal Event
+21:07:46 / 116: Sent Message to 1
+21:07:46 / 117: Internal Event
+21:07:47 / 120: Received Message, 1 messages remaining
+21:07:47 / 121: Received Message, 1 messages remaining
+21:07:48 / 122: Received Message, 2 messages remaining
+21:07:48 / 124: Received Message, 1 messages remaining
+21:07:49 / 125: Received Message, 1 messages remaining
+21:07:49 / 127: Received Message, 0 messages remaining
+21:07:50 / 129: Received Message, 1 messages remaining
+21:07:50 / 130: Received Message, 1 messages remaining
+21:07:51 / 131: Received Message, 0 messages remaining
+21:07:51 / 132: Internal Event
+21:07:52 / 136: Received Message, 0 messages remaining
+21:07:52 / 137: Internal Event
+21:07:53 / 138: Internal Event
+21:07:53 / 139: Internal Event
+21:07:54 / 141: Received Message, 0 messages remaining
+21:07:54 / 142: Internal Event
+21:07:55 / 143: Internal Event
+21:07:55 / 144: Internal Event
+21:07:56 / 148: Received Message, 0 messages remaining
+21:07:56 / 149: Received Message, 0 messages remaining
+21:07:57 / 150: Received Message, 0 messages remaining
+21:07:57 / 151: Internal Event
+21:07:58 / 152: Sent Message to 2
+21:07:58 / 153: Internal Event
+21:07:59 / 157: Received Message, 0 messages remaining
+21:07:59 / 158: Received Message, 0 messages remaining
+21:08:00 / 159: Received Message, 0 messages remaining
+21:08:00 / 160: Internal Event
+21:08:01 / 163: Received Message, 0 messages remaining
+21:08:01 / 164: Internal Event
+21:08:02 / 166: Received Message, 0 messages remaining
+21:08:02 / 167: Sent Message to 2
+21:08:03 / 168: Received Message, 1 messages remaining
+21:08:03 / 169: Received Message, 0 messages remaining
+21:08:04 / 170: Sent Message to 2
+21:08:04 / 171: Sent Message to 1
+21:08:05 / 174: Received Message, 0 messages remaining
+21:08:05 / 175: Internal Event
+21:08:06 / 176: Sent Message to both processes
+21:08:06 / 177: Internal Event
+21:08:07 / 178: Internal Event
+21:08:07 / 179: Sent Message to both processes
+21:08:08 / 183: Received Message, 0 messages remaining
+21:08:08 / 184: Internal Event
+21:08:09 / 185: Internal Event
+21:08:09 / 188: Received Message, 0 messages remaining
+21:08:10 / 190: Received Message, 0 messages remaining
+21:08:10 / 191: Received Message, 1 messages remaining
+21:08:11 / 192: Received Message, 1 messages remaining
+21:08:11 / 193: Received Message, 1 messages remaining
+21:08:12 / 194: Received Message, 1 messages remaining
+21:08:12 / 195: Received Message, 1 messages remaining
+21:08:13 / 197: Received Message, 1 messages remaining
+21:08:13 / 198: Received Message, 1 messages remaining
+21:08:14 / 200: Received Message, 1 messages remaining
+21:08:14 / 202: Received Message, 0 messages remaining
+21:08:15 / 204: Received Message, 0 messages remaining
+21:08:15 / 205: Internal Event
+21:08:16 / 206: Sent Message to 2
+21:08:16 / 209: Received Message, 0 messages remaining
+21:08:17 / 210: Received Message, 0 messages remaining
+21:08:17 / 211: Sent Message to both processes
+21:08:18 / 212: Internal Event
+21:08:18 / 215: Received Message, 0 messages remaining
+21:08:19 / 216: Received Message, 0 messages remaining
+21:08:19 / 218: Received Message, 1 messages remaining
+21:08:20 / 219: Received Message, 1 messages remaining
+21:08:20 / 220: Received Message, 0 messages remaining
+21:08:21 / 222: Received Message, 0 messages remaining
+21:08:21 / 224: Received Message, 0 messages remaining
+21:08:22 / 225: Internal Event
+21:08:22 / 226: Internal Event
+21:08:23 / 227: Sent Message to 1
+21:08:23 / 228: Internal Event
+21:08:24 / 231: Received Message, 1 messages remaining
+21:08:24 / 232: Received Message, 0 messages remaining
+21:08:25 / 233: Internal Event
+21:08:25 / 234: Internal Event
+21:08:26 / 238: Received Message, 0 messages remaining
+21:08:26 / 239: Received Message, 0 messages remaining
+21:08:27 / 240: Internal Event
+21:08:27 / 241: Internal Event
+21:08:28 / 243: Received Message, 0 messages remaining
+21:08:28 / 244: Sent Message to 2
+21:08:29 / 245: Internal Event
+21:08:29 / 246: Internal Event
+21:08:30 / 250: Received Message, 0 messages remaining
+21:08:30 / 251: Internal Event
+21:08:31 / 252: Internal Event
+21:08:31 / 253: Sent Message to 1
+21:08:32 / 254: Internal Event
+21:08:32 / 257: Received Message, 0 messages remaining
+21:08:33 / 258: Received Message, 1 messages remaining
+21:08:33 / 259: Received Message, 0 messages remaining
+21:08:34 / 262: Received Message, 0 messages remaining
+21:08:34 / 263: Internal Event
+21:08:35 / 264: Received Message, 1 messages remaining
+21:08:35 / 265: Received Message, 1 messages remaining
+21:08:36 / 266: Received Message, 1 messages remaining
+21:08:36 / 267: Received Message, 0 messages remaining
+21:08:37 / 269: Received Message, 1 messages remaining
