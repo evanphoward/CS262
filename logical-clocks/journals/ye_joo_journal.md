@@ -3,3 +3,4 @@ Thought about how to use sockets to connect each of the machines during initiali
 
 # 2023.03.07.
 Did some refactoring of code and added unit tests.
+Visualized the 5 experimental runs by Evan (visualize.py).

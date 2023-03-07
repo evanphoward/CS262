@@ -23,6 +23,13 @@ Note: Processes must be started in the above order in order to accurately simula
 
 Once the processes start running, they will run for 90 seconds and leave log files in logs/. The time can be adjusted using the TIME_LIMIT_S variable in model.py
 
+# How to Analyze Model
+Let [dir] be the directory that the log text and csv files are saved. One can analyze the results of the model by running the following command:
+```console
+python3 visualize.py [dir]
+```
+Running the command will create two png files in [dir]. [dir]/clock.png will be a graph that plots the logical clock progression of all three machines. [dir]/messages.png will be a graph that plots the remaining messages progression of all three machines.
+
 # How to Test
 In order to run unit tests, run the following command in the directory:
 ```console
