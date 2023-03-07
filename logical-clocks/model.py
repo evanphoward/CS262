@@ -18,6 +18,7 @@ TIME_LIMIT_S = 90
 HOST = "127.0.0.1" # Being run on local host
 PORTS = {1: 60000, 2: 60001, 3: 60002} # Ports for each machine
 
+""" Function that connects to port of specificed process id """
 def get_socket(id):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -30,6 +31,7 @@ def get_socket(id):
     except:
         return 2, "Server Connection Error"
 
+""" Function that listens for messages and add messages to the queue """
 def listen(s):
     global MESSAGE_QUEUE
     while True:
@@ -43,41 +45,64 @@ def listen(s):
         except ValueError:
             print("ValueError: Non-numeric message sent: " + msg)
 
+
+""" Helper function that takes a message from the queue and syncs the local clock """
+def get_message(queue, clock):
+    QUEUE_LOCK.acquire()
+    msg = queue.pop(0)
+    QUEUE_LOCK.release()
+    new_clock = max(msg, clock) + 1
+    action = "Received Message, " + str(len(queue)) + " messages remaining"
+    return new_clock, action
+
+""" Helper function that chooses connections to send to based on the op_code """
+def perform_op(opcode):
+    if opcode == SEND_TO_ONE:
+        # TODO: Have some identification of s1 and s2 for logging
+        action = "Sent Message to 1"
+        send_s1 = True
+        send_s2 = False
+    elif opcode == SEND_TO_TWO:
+        action = "Sent Message to 2"
+        send_s1 = False
+        send_s2 = True
+    elif opcode == SEND_TO_BOTH:
+        action = "Sent Message to both processes"
+        send_s1 = True
+        send_s2 = True
+    else:
+        action = "Internal Event"
+        send_s1 = False
+        send_s2 = False
+    return action, send_s1, send_s2
+
+""" Function that performs a tick on a given process and logs the result """
 def tick(s1, s2, log_txt, log_csv):
     global MESSAGE_QUEUE, CLOCK
     opcode = 0
+
+    # If there is a message in the queue, read the message and sync the clock
     if MESSAGE_QUEUE:
-        QUEUE_LOCK.acquire()
-        msg = MESSAGE_QUEUE.pop(0)
-        QUEUE_LOCK.release()
-        CLOCK = max(msg, CLOCK) + 1
-        action = "Received Message, " + str(len(MESSAGE_QUEUE)) + " messages remaining"
+        CLOCK, action = get_message(MESSAGE_QUEUE, CLOCK)
+    # Otherwise, randomly perform a send to another machine(s)
     else:
         opcode = random.randint(1, 10)
-        if opcode == SEND_TO_ONE:
-            # TODO: Have some identification of s1 and s2 for logging
-            action = "Sent Message to 1"
+        action, send_s1, send_s2 = perform_op(opcode)
+        if send_s1:
             s1.sendall(str(CLOCK).encode())
-        elif opcode == SEND_TO_TWO:
-            action = "Sent Message to 2"
+        if send_s2:
             s2.sendall(str(CLOCK).encode())
-        elif opcode == SEND_TO_BOTH:
-            action = "Sent Message to both processes"
-            s1.sendall(str(CLOCK).encode())
-            s2.sendall(str(CLOCK).encode())
-        else:
-            action = "Internal Event"
         CLOCK += 1
     print(time.strftime('%H:%M:%S', time.localtime()) + " / " + str(CLOCK) + ": " + action)
     log_txt.write(time.strftime('%H:%M:%S', time.localtime()) + " / " + str(CLOCK) + ": " + action + "\n")
     log_csv.write("{},{},{},{}\n".format(time.strftime('%H:%M:%S', time.localtime()), str(CLOCK), opcode, len(MESSAGE_QUEUE)))
 
+""" Function that initializes the machine by connecting to other machines """
 def initialize(machine_id):
     log_txt = open("logs/log-" + str(machine_id), "w")
     log_csv = open("logs/log-" + str(machine_id) + ".csv", "w")
     log_csv.write("System Clock,Logical Clock,Action,Messages Remaining\n")
 
-    # TODO: this is really dirty but seems much less complicated to do it this way lol
     sockets = []
 
     # machine 1 waits for 2 connections
@@ -132,7 +157,8 @@ def initialize(machine_id):
         start_new_thread(listen, (s2,))
         sockets.append(s1)
         sockets.append(s2)
-        
+
+    # Determine clock speed via random and start ticking
     clock_speed = random.randint(1, 6)
     start = time.time()
     start_prog = time.time()
@@ -150,10 +176,46 @@ def initialize(machine_id):
         log_txt.close()
         log_csv.close()
 
+""" Function for running unit tests """
+def unit_tests():
+    # Tests to get message from queue for singleton queue
+    clock, _ = get_message([4], 3)
+    assert(clock == 5)
+    clock, _ = get_message([5], 6)
+    assert(clock == 7)
+    clock, _ = get_message([6], 6)
+    assert(clock == 7)
+
+    # Tests consecutive getting of message from one queue
+    queue = [2, 4, 6, 9]
+    clock, _ = get_message(queue, 1)
+    assert(clock == 3)
+    clock, _ = get_message(queue, 5)
+    assert(clock == 6)
+    clock, _ = get_message(queue, 6)
+    assert(clock == 7)
+    clock, _ = get_message(queue, 10)
+    assert(clock == 11)
+
+    # Tests for performing operation based on opcode
+    _, send_s1, send_s2 = perform_op(SEND_TO_ONE)
+    assert (send_s1 and not send_s2)
+    _, send_s1, send_s2 = perform_op(SEND_TO_TWO)
+    assert (not send_s1 and send_s2)
+    _, send_s1, send_s2 = perform_op(SEND_TO_BOTH)
+    assert (send_s1 and send_s2)
+    _, send_s1, send_s2 = perform_op(5)
+    assert (not send_s1 and not send_s2)
+
+""" main function. should be called from command line with one argument (1, 2, 3) referring to process id or test argument to run unit tests """
 def main():
     if len(sys.argv) != 2:
-        print("Must provide the process id argument")
+        print("Must provide the process id argument or unit test argument")
         return
+    if sys.argv[1] == "test":
+        unit_tests()
+        print("passes all unit tests")
+        exit()
     if not sys.argv[1].isdigit():
         print("process id argument must be an integer")
         return
