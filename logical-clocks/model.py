@@ -5,7 +5,6 @@ import threading
 import time
 import random
 
-CLOCK = 0
 MESSAGE_QUEUE = []
 QUEUE_LOCK = threading.Lock()
 
@@ -77,25 +76,28 @@ def perform_op(opcode):
     return action, send_s1, send_s2
 
 """ Function that performs a tick on a given process and logs the result """
-def tick(s1, s2, log_txt, log_csv):
-    global MESSAGE_QUEUE, CLOCK
+def tick(clock, s1, s2, log_txt, log_csv):
+    global MESSAGE_QUEUE
     opcode = 0
 
     # If there is a message in the queue, read the message and sync the clock
     if MESSAGE_QUEUE:
-        CLOCK, action = get_message(MESSAGE_QUEUE, CLOCK)
+        clock, action = get_message(MESSAGE_QUEUE, clock)
     # Otherwise, randomly perform a send to another machine(s)
     else:
-        opcode = random.randint(1, 10)
+        opcode = random.randint(1, 4)
         action, send_s1, send_s2 = perform_op(opcode)
         if send_s1:
-            s1.sendall(str(CLOCK).encode())
+            s1.sendall(str(clock).encode())
         if send_s2:
-            s2.sendall(str(CLOCK).encode())
-        CLOCK += 1
-    print(time.strftime('%H:%M:%S', time.localtime()) + " / " + str(CLOCK) + ": " + action)
-    log_txt.write(time.strftime('%H:%M:%S', time.localtime()) + " / " + str(CLOCK) + ": " + action + "\n")
-    log_csv.write("{},{},{},{}\n".format(time.strftime('%H:%M:%S', time.localtime()), str(CLOCK), opcode, len(MESSAGE_QUEUE)))
+            s2.sendall(str(clock).encode())
+        clock += 1
+
+    print(time.strftime('%H:%M:%S', time.localtime()) + " / " + str(clock) + ": " + action)
+    log_txt.write(time.strftime('%H:%M:%S', time.localtime()) + " / " + str(clock) + ": " + action + "\n")
+    log_csv.write("{},{},{},{}\n".format(time.strftime('%H:%M:%S', time.localtime()), str(clock), opcode, len(MESSAGE_QUEUE)))
+
+    return clock
 
 """ Function that initializes the machine by connecting to other machines """
 def initialize(machine_id):
@@ -159,17 +161,18 @@ def initialize(machine_id):
         sockets.append(s2)
 
     # Determine clock speed via random and start ticking
-    clock_speed = random.randint(1, 6)
+    clock_speed = random.randint(3, 6)
     start = time.time()
     start_prog = time.time()
     period = 1.0 / clock_speed
+    clock = 0
     log_txt.write("Initialization Completed, Clock Speed " + str(clock_speed) + "\n")
     try:
         time.sleep(machine_id / 100)
         while True:
             if (time.time() - start) > period:
                 start += period
-                tick(sockets[0], sockets[1], log_txt, log_csv)
+                clock = tick(clock, sockets[0], sockets[1], log_txt, log_csv)
                 if(time.time() - start_prog) > TIME_LIMIT_S:
                     break
     finally:
