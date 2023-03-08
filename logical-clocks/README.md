@@ -30,6 +30,9 @@ python3 visualize.py [dir]
 ```
 Running the command will create two png files in [dir]. [dir]/clock.png will be a graph that plots the logical clock progression of all three machines. [dir]/messages.png will be a graph that plots the remaining messages progression of all three machines.
 
+# Analysis
+The results of our analysis could be found in journals/combined-analysis.md
+
 # How to Test
 In order to run unit tests, run the following command in the directory:
 ```console
