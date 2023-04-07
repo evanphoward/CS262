@@ -85,7 +85,7 @@ def tick(clock, s1, s2, log_txt, log_csv):
         clock, action = get_message(MESSAGE_QUEUE, clock)
     # Otherwise, randomly perform a send to another machine(s)
     else:
-        opcode = random.randint(1, 4)
+        opcode = random.randint(1, 10)
         action, send_s1, send_s2 = perform_op(opcode)
         if send_s1:
             s1.sendall(str(clock).encode())
@@ -161,7 +161,7 @@ def initialize(machine_id):
         sockets.append(s2)
 
     # Determine clock speed via random and start ticking
-    clock_speed = random.randint(3, 6)
+    clock_speed = random.randint(1, 6)
     start = time.time()
     start_prog = time.time()
     period = 1.0 / clock_speed
