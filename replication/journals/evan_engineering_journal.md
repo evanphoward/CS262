@@ -1,1 +1,2 @@
- 
+ # 4/07
+ Copied over a few other server methods. Started to think about how the replication will work. I'm imagining we will have three concurrent servers (to maintain two fault tolerance). One server (initially ID 0) will be the primary. The primary will send state updates to the backup servers and the backup servers will continually ping the primary server. If a ping fails, then the primary will deterministcally become the server with the next ID (0 -> 1, 1 -> 2, 2 -> 0). Need to think about two servers failing but will address that later. Client would probably need to handle re-establishing a connection with the backup servers if this happens, not sure how we would get around that.

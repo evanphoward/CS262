@@ -2,19 +2,21 @@ import os
 import socket
 import pandas as pd
 
-HOST = "127.0.0.1"
+# Host IP for Server ID 1, 2, 3
+HOSTS = ["127.0.0.1", "127.0.0.1", "127.0.0.1"]
+# Port used is PORT + ID
 PORT = 65432
 
 class Server():
     """ Initialize Server Object """
-    def __init__(self, host_and_port = None):
+    def __init__(self, id):
         # Initialize host and port
-        if host_and_port is None:
-            self.host = HOST
-            self.port = PORT
-        else:
-            self.host = host_and_port[0]
-            self.port = host_and_port[1]
+        self.id = id
+        self.master_id = 0
+        self.host = HOSTS[id]
+        self.port = PORT + id
+
+        # TODO: Create pairwise socket connections a la logical clocks design problem
 
         # Create socket
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -61,17 +63,70 @@ class Server():
         else:
             return 1
 
+    """ Function to search and list all accounts """
+    def list_accounts(search):
+        accounts = ""
+        # Find all matching usernames
+        for username in self.accounts["Username"]:
+            if fnmatch.fnmatch(username, search):
+                accounts += username
+                accounts += "\n"
+
+        return accounts
+
+    """ Function to send a message from one user to another """
+    def send_message(sender, receiver, message):
+        # Find receiver and queue message
+        if receiver in self.accounts['Username'].values:
+            # TODO: Figure out how we are delivering to the user, what the difference is when the user is logged in and isn't logged in
+            return 0
+
+        # Could not find receiver. Fail.
+        return 1
+
+    """ Function to receive all messages on behalf of user """
+    def receive_messages(receiver):
+        # Deliver all unread messages
+        # TODO: Pending how we implement pending messages. Is the CSV cleared of all messages that match this receiver after we delvier them?
+
+    """ Function to delete account """
+    def delete_account(username):
+        # Delete Account
+        # TODO: Delete account from dataframe and from CSV file
+
     def run(self):
         self.server.bind((self.host, self.port))
         self.server.listen()
 
         while True:
-            conn, addr = self.server.accept()
-            start_new_thread(handle_connection, (conn,))
+            if self.id == self.master_id:
+                conn, addr = self.server.accept()
+                start_new_thread(handle_connection, (conn,))
+            else:
+                # Use the pairwise server connections made in init to ping the master every once in a while, and if it fails potentially become the master
+                pass
+
+
+def unit_tests():
+    server = Server(0)
+    server.login("yejoo", "idk")
 
 def main():
-    server = Server()
-    server.login("yejoo", "idk")
+    if len(sys.argv) != 2:
+        print("Must provide the server id argument or unit test argument")
+        return
+
+    if sys.argv[1] == "test":
+        unit_tests()
+        print("Passes all unit tests")
+        return
+
+    id = int(sys.argv[1])
+    if id not in [1, 2, 3]:
+        print("Must provide a valid server id: 1, 2, 3")
+        return
+
+    server = Server(id)
     server.run()
 
 main()
