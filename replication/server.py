@@ -3,11 +3,27 @@ import socket
 import pandas as pd
 import sys
 import fnmatch
+from _thread import *
 
 # Host IP for Server ID 1, 2, 3
 HOSTS = ["127.0.0.1", "127.0.0.1", "127.0.0.1"]
 # Port used is PORT + ID
 PORT = 65432
+
+# Operation Codes
+PING = 0
+REGISTER = 1
+LOGIN = 2
+SEND_MSG = 3
+LOGOUT = 4
+LIST = 5
+DELETE = 6
+
+# Error Codes
+SUCCESS = 0
+CONNECTION_ERROR = 1
+RETRY_ERROR = 2
+MESSAGE = 3
 
 """ Class that represents a User of the application """
 class User():
@@ -140,6 +156,120 @@ class Server():
 
         return
 
+    """ Function that handles connection with client """
+    def handle_connection(self, conn):
+        """ Function to take a message string and encode it into bytes """
+        def pack_msg(msg_str):
+            byte_msg = msg_str.encode()
+            assert(len(byte_msg) < 256)
+            return (len(byte_msg)).to_bytes(1, byteorder='big') + byte_msg
+
+        """ Function to parse request from client """
+        def parse_request(request):
+            opcode = request[0]
+            num_args = request[1]
+            args = []
+            index = 2
+
+            for arg in range(num_args):
+                arg_length = int(request[index])
+                args.append(request[index + 1: index + 1 + arg_length].decode())
+                index = index + arg_length + 1
+
+            return opcode, args
+
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+
+            opcode, args = parse_request(data)
+
+            # Handle request from client based on operation
+            # Ping
+            if opcode == PING:
+                conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("PONG!"))
+
+            # Login
+            elif opcode == LOGIN:
+                # Get login arguments
+                username = args[0]
+                password = args[1]
+
+                # Login and send success/failure to client
+                login_status = self.login(username, password)
+                if login_status == 0:
+                    self.users[username].socket = conn
+                    conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Successfully Logged In!"))
+                    messages_to_deliver = self.receive_messages(username)
+                    if messages_to_deliver:
+                        conn.sendall((MESSAGE).to_bytes(1, byteorder='big') + pack_msg(messages_to_deliver))
+                elif login_status == 1:
+                    conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Incorrect Password"))
+                elif login_status == 2:
+                    conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Username Not Found"))
+
+            # Register
+            elif opcode == REGISTER:
+                # Get register arguments
+                username = args[0]
+                password = args[1]
+
+                # Create account and send success/failure to client
+                register_status = self.create_account(username, password)
+                if register_status == 0:
+                    self.users[username].socket = conn
+                    conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Successfully Registered!"))
+                elif register_status == 1:
+                    conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Username Already Exists"))
+
+            # Send Message
+            elif opcode == SEND_MSG:
+                # Get send arguments
+                sender = args[0]
+                receiver = args[1]
+                message = args[2]
+
+                # Send message and send success/failure to client
+                send_status = self.send_message(sender, receiver, message)
+                if send_status == 0:
+                    conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Successfully Sent Message!"))
+                elif send_status == 1:
+                    conn.sendall((RETRY_ERROR).to_bytes(1, byteorder='big') + pack_msg("Receiver Username Does Not Exist"))
+
+            # List Accounts
+            elif opcode == LIST:
+                # Find accounts to be listed
+                if len(args) == 0:
+                    accounts = self.list_accounts("*")
+                else:
+                    search = args[0]
+                    accounts = self.list_accounts(search)
+
+                accounts_string = ""
+                for account in accounts:
+                    accounts_string += (account + "\n")
+
+                conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg(accounts_string))
+
+            # Log Out
+            elif opcode == LOGOUT:
+                # log out and break connection
+                self.users[username].socket = None
+                conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Logout Acknowledged!"))
+                break
+
+            # Delete
+            elif opcode == DELETE:
+                # delete account and break connection
+                username = args[0]
+                self.delete_account(username)
+                conn.sendall((SUCCESS).to_bytes(1, byteorder='big') + pack_msg("Deleted Account!"))
+                break
+
+        # If we break out of the loop, we close the connection before return from this function
+        conn.close()
+
     def run(self):
         self.server.bind((self.host, self.port))
         self.server.listen()
@@ -147,7 +277,7 @@ class Server():
         while True:
             if self.id == self.master_id:
                 conn, addr = self.server.accept()
-                start_new_thread(handle_connection, (conn,))
+                start_new_thread(self.handle_connection, (conn,))
             else:
                 # Use the pairwise server connections made in init to ping the master every once in a while, and if it fails potentially become the master
                 pass
@@ -225,8 +355,8 @@ def main():
         return
 
     id = int(sys.argv[1])
-    if id not in [1, 2, 3]:
-        print("Must provide a valid server id: 1, 2, 3")
+    if id not in [0, 1, 2]:
+        print("Must provide a valid server id: 0, 1, 2")
         return
 
     server = Server(id)
