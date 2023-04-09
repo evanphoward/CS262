@@ -24,6 +24,7 @@ MESSAGE = 3
 class Client():
     def __init__(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.received_messages = []
 
     """ Makes a request to the socket. req_type is the type of request and args are the arguments needed for that request """
     def make_request(self, req_type, args):
@@ -71,7 +72,7 @@ class Client():
         if len(responses) > 1:
             for resp in responses:
                 if resp[0] == MESSAGE:
-                    RECEIVED_MESSAGES.append(resp[1])
+                    self.received_messages.append(resp[1])
                 else:
                     ret = resp
         return ret
@@ -92,6 +93,32 @@ class Client():
             resp = input("Input not recognized, please type L or R. ").upper()
         return self.login() if resp == "L" else self.register()
 
+    def logout(self):
+        ret = self.make_request(LOGOUT, ())
+        self.socket.close()
+        return ret
+
+    def ping(self):
+        return self.make_request(PING, ())
+
+    def list_users(self):
+        search = input("Please supply a search term (Leave blank to see all users, use * as a wildcard)\n")
+        # Blank Input by User
+        if not search:
+            return self.make_request(LIST, ())
+        # User Input
+        return self.make_request(LIST, (search,))
+
+    def send_msg(self, user):
+        receiver = input("Who would you like to send a message to? ")
+        msg = input("Please type your message (Max 256 characters)\n")
+        return self.make_request(SEND_MSG, (user, receiver, msg))
+
+    def delete_account(self, user):
+        ret = self.make_request(DELETE, (user,))
+        self.socket.close()
+        return ret
+
     def run(self):
         # Create socket for connection and send connection message to server
         self.socket.connect((HOST, PORT))
@@ -108,6 +135,58 @@ class Client():
             print(msg)
             if err == CONNECTION_ERROR:
                 exit()
+
+        # once logged in, user can use full functionality of the app
+        while True:
+            opt = print("Welcome " + username + "! Would you like to (C)heck messages, (L)ist users, (S)end a message, (D)elete your account, or L(o)gout?")
+            opt = input("").upper()
+
+            while opt not in "CLSDO":
+                opt = input("Input not recognized, please type C, L, S, D, or O. ").upper()
+
+            # Check messages
+            if opt == "C":
+                self.ping()
+                if self.received_messages:
+                    print("New Messages:")
+                    print(''.join(self.received_messages))
+                else:
+                    print("No New Messages!")
+                self.received_messages = []
+
+            # List users on the app
+            elif opt == "L":
+                err, msg = self.list_users()
+                print(msg)
+                if err == CONNECTION_ERROR:
+                    self.socket.close()
+                    break
+
+            # Send message to another user
+            elif opt == "S":
+                err, msg = self.send_msg(username)
+                print(msg)
+                if err == CONNECTION_ERROR:
+                    self.socket.close()
+                    break
+
+            # Delete user's own account
+            elif opt == "D":
+                _, msg = self.delete_account(username)
+                if self.received_messages:
+                    print("Before you go, here are your new messages:")
+                    print(''.join(self.received_messages))
+                print(msg)
+                break
+
+            # Log out
+            elif opt == "O":
+                _, msg = self.logout()
+                if self.received_messages:
+                    print("Before you go, here are your new messages:")
+                    print(''.join(self.received_messages))
+                print(msg)
+                break
 def main():
     client = Client()
     client.run()
