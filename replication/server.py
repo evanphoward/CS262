@@ -58,6 +58,11 @@ class Server():
         # Create socket
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        # Create other server sockets
+        self.other_servers = {}
+        for i in range(self.id):
+            self.other_servers[self.master_id + PORT + i] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
         # Create account dictionary and corresponding CSV files
         self.account_path = "server-" + str(self.port) + "-accounts.csv"
         self.message_path = "server-" + str(self.port) + "-messages.csv"
@@ -270,9 +275,16 @@ class Server():
         # If we break out of the loop, we close the connection before return from this function
         conn.close()
 
+    """ Function to connect to other servers """
+    def connect_to_servers(self):
+        for port in self.other_servers:
+            self.other_servers[port].connect((self.host, port))
+
+    """ Function that runs the server """
     def run(self):
         self.server.bind((self.host, self.port))
         self.server.listen()
+        self.connect_to_servers()
 
         while True:
             if self.id == self.master_id:
