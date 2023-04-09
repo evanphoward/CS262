@@ -328,9 +328,9 @@ class Server():
         if server_or_client == SERVER:
             port = int.from_bytes(data[1:5], 'big')
             self.handle_server_connection(conn, port)
-        # TODO: modify client side to deal with this
         elif server_or_client == CLIENT:
             self.handle_client_connection(conn)
+            print ("connected to client")
 
     """ Function to connect to other servers """
     def connect_to_servers(self):
