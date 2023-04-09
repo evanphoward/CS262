@@ -4,6 +4,7 @@ import pandas as pd
 import sys
 import fnmatch
 from _thread import *
+from threading import Timer
 
 # Host IP for Server ID 1, 2, 3
 HOSTS = ["127.0.0.1", "127.0.0.1", "127.0.0.1"]
@@ -29,6 +30,17 @@ CONNECTION_ERROR = 1
 RETRY_ERROR = 2
 MESSAGE = 3
 
+# Server Leader Codes
+LEADER = 0
+FOLLOWER = 1
+
+# Server Alive Codes
+ALIVE = 0
+DEAD = 1
+
+# Ping interval for server-to-server communication (Change interval as desired)
+PING_INTERVAL = 1
+
 """ Class that represents a User of the application """
 class User():
     def __init__(self, username, password):
@@ -47,6 +59,32 @@ class Message():
         self.receiver = receiver
         self.message = message
 
+""" Class for having a thread that runs the same thing repeatedly"""
+class RepeatedTimer(object):
+    def __init__(self, interval, function, *args, **kwargs):
+        self._timer     = None
+        self.interval   = interval
+        self.function   = function
+        self.args       = args
+        self.kwargs     = kwargs
+        self.is_running = False
+        self.start()
+
+    def _run(self):
+        self.is_running = False
+        self.start()
+        self.function(*self.args, **self.kwargs)
+
+    def start(self):
+        if not self.is_running:
+            self._timer = Timer(self.interval, self._run)
+            self._timer.start()
+            self.is_running = True
+
+    def stop(self):
+        self._timer.cancel()
+        self.is_running = False
+
 """ Class that represents a Server """
 class Server():
     """ Initialize Server Object """
@@ -56,8 +94,6 @@ class Server():
         self.master_id = 0
         self.host = HOSTS[id]
         self.port = PORT + id
-
-        # TODO: Create pairwise socket connections a la logical clocks design problem
 
         # Create socket
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -305,16 +341,20 @@ class Server():
 
     """ Function to send a ping to other servers """
     def send_ping(self):
-        ping = "ping"
+        update = (ALIVE).to_bytes(1, byteorder = 'big')
 
+        # Current server is leader
         if self.id == self.master_id:
+            update += (LEADER).to_bytes(1, byteorder = 'big') + (self.port).to_bytes(4, byteorder = 'big')
             for port in self.other_servers:
-                self.other_servers[port].sendto(ping.encode(), (self.host, port))
+                self.other_servers[port].sendall(update)
                 print("Sent ping from " + str(self.port) + " to " + str(port))
 
+        # Current server is follower
         else:
+            update += (FOLLOWER).to_bytes(1, byteorder = 'big') + (self.port).to_bytes(4, byteorder = 'big')
             for port in self.other_servers:
-                self.other_servers[port].sendto(ping.encode(), (self.host, port))
+                self.other_servers[port].sendall(update)
                 print("Sent ping from " + str(self.port) + " to " + str(port))
 
     """ Function that runs the server """
@@ -322,6 +362,8 @@ class Server():
         self.server.bind((self.host, self.port))
         self.server.listen()
         self.connect_to_servers()
+
+        self.timer = RepeatedTimer(PING_INTERVAL, self.send_ping)
 
         while True:
             if self.id == self.master_id:
