@@ -10,6 +10,10 @@ HOSTS = ["127.0.0.1", "127.0.0.1", "127.0.0.1"]
 # Port used is PORT + ID
 PORT = 65432
 
+# Connection Codes
+SERVER = 0
+CLIENT = 1
+
 # Operation Codes
 PING = 0
 REGISTER = 1
@@ -161,8 +165,13 @@ class Server():
 
         return
 
+    """ Function that handles connection with another server """
+    def handle_server_connection(self, conn, port):
+        self.other_servers[port] = conn
+        print("Connected to " + str(port))
+
     """ Function that handles connection with client """
-    def handle_connection(self, conn):
+    def handle_client_connection(self, conn):
         """ Function to take a message string and encode it into bytes """
         def pack_msg(msg_str):
             byte_msg = msg_str.encode()
@@ -275,10 +284,38 @@ class Server():
         # If we break out of the loop, we close the connection before return from this function
         conn.close()
 
+    """ Function that handles connection """
+    def handle_connection(self, conn):
+        data = conn.recv(1024)
+        server_or_client = data[0]
+
+        if server_or_client == SERVER:
+            port = int.from_bytes(data[1:5], 'big')
+            self.handle_server_connection(conn, port)
+        # TODO: modify client side to deal with this
+        elif server_or_client == CLIENT:
+            self.handle_client_connection(conn)
+
     """ Function to connect to other servers """
     def connect_to_servers(self):
+        connection_message = (SERVER).to_bytes(1, byteorder = 'big') + (self.port).to_bytes(4, byteorder = 'big')
         for port in self.other_servers:
             self.other_servers[port].connect((self.host, port))
+            self.other_servers[port].sendall(connection_message)
+
+    """ Function to send a ping to other servers """
+    def send_ping(self):
+        ping = "ping"
+
+        if self.id == self.master_id:
+            for port in self.other_servers:
+                self.other_servers[port].sendto(ping.encode(), (self.host, port))
+                print("Sent ping from " + str(self.port) + " to " + str(port))
+
+        else:
+            for port in self.other_servers:
+                self.other_servers[port].sendto(ping.encode(), (self.host, port))
+                print("Sent ping from " + str(self.port) + " to " + str(port))
 
     """ Function that runs the server """
     def run(self):
