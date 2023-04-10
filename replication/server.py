@@ -374,6 +374,7 @@ class Server():
                 try:
                     self.other_servers[port].connect((HOSTS[port], port))
                     start_new_thread(self.handle_server_connection, (self.other_servers[port], port))
+                    connection_message = (SERVER).to_bytes(1, byteorder = 'big') + (self.port).to_bytes(4, byteorder = 'big')
                     self.other_servers[port].sendall(connection_message)
                 except:
                     pass
