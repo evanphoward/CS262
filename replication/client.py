@@ -22,7 +22,9 @@ CONNECTION_ERROR = 1
 RETRY_ERROR = 2
 MESSAGE = 3
 
+""" Class that represents a Client """
 class Client():
+    """ Initialize Client Object """
     def __init__(self):
         self.primary_server_id = 0
         self.logged_in_user = ()
@@ -51,8 +53,9 @@ class Client():
                 return 2, "Argument too long"
             return 0, (len(byte_arg)).to_bytes(1, byteorder='big') + byte_arg
 
+        """ If connection to server fails, move over to another server """
         def failover():
-            time.sleep(0.05)
+            time.sleep(0.1)
             self.primary_server_id = (self.primary_server_id + 1) % 3
             self.initialize_socket()
             self.login()
@@ -96,6 +99,7 @@ class Client():
                     ret = resp
         return ret
 
+    """ Function for client login request """
     def login(self):
         # Use logged in user if it exists, enables logging back in on failover
         if not self.logged_in_user:
@@ -107,6 +111,7 @@ class Client():
             self.logged_in_user = None
         return err, msg
 
+    """ Function for client register request """
     def register(self):
         u = input("Username? ")
         p = input("Password? ")
@@ -115,20 +120,24 @@ class Client():
             self.logged_in_user = (u, p)
         return err, msg
 
+    """ Function for login/register branch """
     def login_or_register(self):
         resp = input("Welcome! Would you like to (L)ogin to an existing account or (R)egister a new account (Type L or R)?\n").upper()
         while resp not in "LR":
             resp = input("Input not recognized, please type L or R. ").upper()
         return self.login() if resp == "L" else self.register()
 
+    """ Function for client logout request """
     def logout(self):
         ret = self.make_request(LOGOUT, ())
         self.socket.close()
         return ret
 
+    """ Function for client ping request """
     def ping(self):
         return self.make_request(PING, ())
 
+    """ Function for client list requst """
     def list_users(self):
         search = input("Please supply a search term (Leave blank to see all users, use * as a wildcard)\n")
         # Blank Input by User
@@ -137,17 +146,19 @@ class Client():
         # User Input
         return self.make_request(LIST, (search,))
 
+    """ Function for client send rquest """
     def send_msg(self, user):
         receiver = input("Who would you like to send a message to? ")
         msg = input("Please type your message (Max 256 characters)\n")
         return self.make_request(SEND_MSG, (user, receiver, msg))
 
+    """ Function for client delete request """
     def delete_account(self, user):
         ret = self.make_request(DELETE, (user,))
         self.socket.close()
         return ret
 
-    # Create socket for connection and send connection message to server
+    """ Create socket for connection and send connection message to server """
     def initialize_socket(self, tries=3):
         # If we've tried all three servers, return an error
         if tries == 0:
@@ -165,6 +176,7 @@ class Client():
         time.sleep(0.05)
         return 0
 
+    """ Function that runs the client """
     def run(self):
         err = self.initialize_socket()
         if err == -1:
