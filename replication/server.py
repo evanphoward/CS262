@@ -363,7 +363,6 @@ class Server():
         for port in self.other_servers:
             try:
                 self.other_servers[port].sendall(update)
-                print("Sent ping from " + str(self.port) + " to " + str(port))
             except:
                 # If the server is down then close the connection
                 self.other_servers[port].close()

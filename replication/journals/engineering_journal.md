@@ -22,3 +22,14 @@ Successfully got a very basic form of replication implemented -- if a server fai
 Implemented failover while a user is logged in without too much difficulty. Uses the same method for connecting to a new server, but now keeps track of a logged in user and logs into the new server if a request to the old server ever fails.
 
 Servers can now also come back online and be reconnected to by any existing servers. This means that as long as one server is still up, servers can come on and offline and the client's experience will be seamless.
+
+# 4/10
+Did some testing. Found some errors.
+1. run server.py 0, server.py 1, then server.py 2. Then, kill server.py 0 and server.py 1. Restarting server.py 0 won't raise an issue but restarting server.py 1 will throw an error (it will think the connection is with a client).
+2. run server.py 0, server.py 1, then server.py 2. Then, kill server.py 0 and server.py 1. Run client.py. Then, client does this on server 2. Restart server.py 0 and kill server.py 2. Then, the next command by the client will throw an error.
+
+Confirmed Functionality:
+- seamless client experience. (client connects to one server, said server goes down, client still sends requests and is received by another server)
+- persistence. if all servers are brought down, account info & message info is not lost.
+- 2-fault tolerance: If server0 goes down after having received a message, server1 still has sent message. If server1 goes down after having received a message, server2 still has sent message. If server2 goes down after having received a message, server0 still has sent message.
+-
