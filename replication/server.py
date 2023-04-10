@@ -5,9 +5,10 @@ import sys
 import fnmatch
 from _thread import *
 from threading import Timer
+from io import StringIO
 
 # Host IP for Server ID 1, 2, 3
-HOSTS = ["127.0.0.1", "127.0.0.1", "127.0.0.1"]
+HOSTS = {65432: "127.0.0.1", 65433: "127.0.0.1", 65434: "127.0.0.1"}
 # Port used is PORT + ID
 PORT = 65432
 
@@ -34,12 +35,14 @@ MESSAGE = 3
 LEADER = 0
 FOLLOWER = 1
 
-# Server Alive Codes
-ALIVE = 0
-DEAD = 1
-
 # Ping interval for server-to-server communication (Change interval as desired)
 PING_INTERVAL = 1
+
+""" Function to take a message string and encode it into bytes """
+def pack_msg(msg_str):
+    byte_msg = msg_str.encode()
+    assert(len(byte_msg) < 256)
+    return (len(byte_msg)).to_bytes(1, byteorder='big') + byte_msg
 
 """ Class that represents a User of the application """
 class User():
@@ -92,8 +95,8 @@ class Server():
         # Initialize host and port
         self.id = id
         self.master_id = 0
-        self.host = HOSTS[id]
         self.port = PORT + id
+        self.host = HOSTS[self.port]
 
         # Create socket
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -127,7 +130,6 @@ class Server():
             self.users[message["Receiver"]].add_message(Message(message["Sender"], message["Receiver"], message["Message"]))
 
     """ Function to create a new account """
-    # TODO: make sure that self.accounts is fresh before calling create_account
     def create_account(self, username, password):
         # Fails if username is not unique
         if username in self.accounts["Username"].values:
@@ -170,10 +172,12 @@ class Server():
             return 1
 
         # Queue message
-        # TODO: queueing all "sent" messages. should have another function deal with receiving messages instantly if logged in
-        self.users[receiver].add_message(Message(sender, receiver, message))
-        self.messages.loc[len(self.messages)] = [sender, receiver, message, pd.Timestamp.now()]
-        self.messages.to_csv(self.message_path, index = False)
+        if self.users[receiver].socket:
+            self.users[receiver].socket.sendall((MESSAGE).to_bytes(1, byteorder='big') + pack_msg("From " + sender + ": " + message + "\n"))
+        else:
+            self.users[receiver].add_message(Message(sender, receiver, message))
+            self.messages.loc[len(self.messages)] = [sender, receiver, message, pd.Timestamp.now()]
+            self.messages.to_csv(self.message_path, index = False)
         return 0
 
     """ Function to receive all messages on behalf of user """
@@ -192,7 +196,6 @@ class Server():
     """ Function to delete account """
     def delete_account(self, username):
         # Delete Account
-        # TODO: add handling of messages to be received by deleted user
         self.accounts = self.accounts[self.accounts["Username"] != username]
         self.accounts.to_csv(self.account_path, index = False)
         self.messages = self.messages[self.messages["Receiver"] != username]
@@ -205,15 +208,27 @@ class Server():
     def handle_server_connection(self, conn, port):
         self.other_servers[port] = conn
         print("Connected to " + str(port))
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+            if data[0] == LEADER:
+                # Update state on backup server to match that on primary server
+                self.master_id = int.from_bytes(data[1:5], "big") - PORT
+                accounts_len = data[5]
+                self.accounts = pd.read_csv(StringIO(data[6 : 6 + accounts_len].decode()))
+                self.accounts.to_csv(self.account_path, index = False)
+                messages_len = data[6 + accounts_len]
+                self.messages = pd.read_csv(StringIO(data[7 + accounts_len : 7 + accounts_len + messages_len].decode()))
+                self.messages.to_csv(self.message_path, index = False)
+
+                for index, account in self.accounts.iterrows():
+                    self.users[account["Username"]] = User(account["Username"], account["Password"])
+                for index, message in self.messages.iterrows():
+                    self.users[message["Receiver"]].add_message(Message(message["Sender"], message["Receiver"], message["Message"]))
 
     """ Function that handles connection with client """
     def handle_client_connection(self, conn):
-        """ Function to take a message string and encode it into bytes """
-        def pack_msg(msg_str):
-            byte_msg = msg_str.encode()
-            assert(len(byte_msg) < 256)
-            return (len(byte_msg)).to_bytes(1, byteorder='big') + byte_msg
-
         """ Function to parse request from client """
         def parse_request(request):
             opcode = request[0]
@@ -329,33 +344,40 @@ class Server():
             port = int.from_bytes(data[1:5], 'big')
             self.handle_server_connection(conn, port)
         elif server_or_client == CLIENT:
-            self.handle_client_connection(conn)
             print ("connected to client")
+            self.handle_client_connection(conn)
 
     """ Function to connect to other servers """
     def connect_to_servers(self):
         connection_message = (SERVER).to_bytes(1, byteorder = 'big') + (self.port).to_bytes(4, byteorder = 'big')
         for port in self.other_servers:
-            self.other_servers[port].connect((self.host, port))
+            self.other_servers[port].connect((HOSTS[port], port))
+            start_new_thread(self.handle_server_connection, (self.other_servers[port], port))
             self.other_servers[port].sendall(connection_message)
 
     """ Function to send a ping to other servers """
     def send_ping(self):
-        update = (ALIVE).to_bytes(1, byteorder = 'big')
-
-        # Current server is leader
+        update = (LEADER if self.id == self.master_id else FOLLOWER).to_bytes(1, byteorder = 'big') + (self.port).to_bytes(4, byteorder = 'big')
         if self.id == self.master_id:
-            update += (LEADER).to_bytes(1, byteorder = 'big') + (self.port).to_bytes(4, byteorder = 'big')
-            for port in self.other_servers:
+            update += pack_msg(self.accounts.to_csv(index = False)) + pack_msg(self.messages.to_csv(index = False))
+        for port in self.other_servers:
+            try:
                 self.other_servers[port].sendall(update)
                 print("Sent ping from " + str(self.port) + " to " + str(port))
-
-        # Current server is follower
-        else:
-            update += (FOLLOWER).to_bytes(1, byteorder = 'big') + (self.port).to_bytes(4, byteorder = 'big')
-            for port in self.other_servers:
-                self.other_servers[port].sendall(update)
-                print("Sent ping from " + str(self.port) + " to " + str(port))
+            except:
+                # If the server is down then close the connection
+                self.other_servers[port].close()
+                self.other_servers[port] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                # If the master has gone down, update the master id
+                if port - PORT == self.master_id:
+                    self.master_id = (self.master_id + 1) % 3
+                # Keep trying to reconnect, this allows for down servers to come back up seamlessly
+                try:
+                    self.other_servers[port].connect((HOSTS[port], port))
+                    start_new_thread(self.handle_server_connection, (self.other_servers[port], port))
+                    self.other_servers[port].sendall(connection_message)
+                except:
+                    pass
 
     """ Function that runs the server """
     def run(self):
@@ -366,9 +388,10 @@ class Server():
         self.timer = RepeatedTimer(PING_INTERVAL, self.send_ping)
 
         while True:
+            conn, addr = self.server.accept()
+            start_new_thread(self.handle_connection, (conn,))
             if self.id == self.master_id:
-                conn, addr = self.server.accept()
-                start_new_thread(self.handle_connection, (conn,))
+                pass
             else:
                 # Use the pairwise server connections made in init to ping the master every once in a while, and if it fails potentially become the master
                 pass

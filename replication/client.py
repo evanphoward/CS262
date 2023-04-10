@@ -1,6 +1,7 @@
 import socket
+import time
 
-HOST = "127.0.0.1"  # The server's hostname or IP address
+HOSTS = ["127.0.0.1", "127.0.0.1", "127.0.0.1"]  # The three server's hostname or IP address
 PORT = 65432  # The port used by the server
 
 # Connection Codes
@@ -23,6 +24,8 @@ MESSAGE = 3
 
 class Client():
     def __init__(self):
+        self.primary_server_id = 0
+        self.logged_in_user = ()
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.received_messages = []
 
@@ -59,10 +62,21 @@ class Client():
         try:
             self.socket.sendall(packed_req)
         except:
-            return CONNECTION_ERROR, "Error: Lost connection to server"
+            # Switch to a backup server if socket can't send data to server
+            self.primary_server_id = (self.primary_server_id + 1) % 3
+            self.initialize_socket()
+            self.login()
+            self.socket.sendall(packed_req)
 
         # Get parsed responses from the server
         responses = parse_response(self.socket.recv(1024))
+        if responses[0] == CONNECTION_ERROR:
+            # Switch to backup server if socket can't receive data from server
+            self.primary_server_id = (self.primary_server_id + 1) % 3
+            self.initialize_socket()
+            self.login()
+            self.socket.sendall(packed_req)
+            responses = parse_response(self.socket.recv(1024))
         # If all of the responses are messages for the user, keep waiting until we get the response to this request
         while all(resp[0] == MESSAGE for resp in responses):
             responses.extend(parse_response(self.socket.recv(1024)))
@@ -78,14 +92,23 @@ class Client():
         return ret
 
     def login(self):
-        u = input("Username? ")
-        p = input("Password? ")
-        return self.make_request(LOGIN, (u, p)) + (u,)
+        # Use logged in user if it exists, enables logging back in on failover
+        if not self.logged_in_user:
+            u = input("Username? ")
+            p = input("Password? ")
+            self.logged_in_user = (u, p)
+        err, msg = self.make_request(LOGIN, self.logged_in_user)
+        if err != 0:
+            self.logged_in_user = None
+        return err, msg
 
     def register(self):
         u = input("Username? ")
         p = input("Password? ")
-        return self.make_request(REGISTER, (u, p)) + (u,)
+        err, msg = self.make_request(REGISTER, (u, p))
+        if err == 0:
+            self.logged_in_user = (u, p)
+        return err, msg
 
     def login_or_register(self):
         resp = input("Welcome! Would you like to (L)ogin to an existing account or (R)egister a new account (Type L or R)?\n").upper()
@@ -119,26 +142,44 @@ class Client():
         self.socket.close()
         return ret
 
-    def run(self):
-        # Create socket for connection and send connection message to server
-        self.socket.connect((HOST, PORT))
+    # Create socket for connection and send connection message to server
+    def initialize_socket(self, tries=3):
+        # If we've tried all three servers, return an error
+        if tries == 0:
+            return -1
+        self.socket.close()
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # If the current primary server doesn't work, try the next server (wrapping back around)
+        try:
+            self.socket.connect((HOSTS[self.primary_server_id], PORT + self.primary_server_id))
+        except:
+            self.primary_server_id = (self.primary_server_id + 1) % 3
+            return self.initialize_socket(tries - 1)
         connection_message = (CLIENT).to_bytes(1, byteorder = 'big')
         self.socket.sendall(connection_message)
+        time.sleep(0.05)
+        return 0
+
+    def run(self):
+        err = self.initialize_socket()
+        if err == -1:
+            print("No working server found, exiting")
+            return
 
         # on connection, user must login or register
-        err, msg, username = self.login_or_register()
+        err, msg = self.login_or_register()
         print(msg)
         if err == CONNECTION_ERROR:
-            exit()
+            return
         while err == RETRY_ERROR:
-            err, msg, username = self.login_or_register()
+            err, msg = self.login_or_register()
             print(msg)
             if err == CONNECTION_ERROR:
-                exit()
+                return
 
         # once logged in, user can use full functionality of the app
         while True:
-            opt = print("Welcome " + username + "! Would you like to (C)heck messages, (L)ist users, (S)end a message, (D)elete your account, or L(o)gout?")
+            opt = print("Welcome " + self.logged_in_user[0] + "! Would you like to (C)heck messages, (L)ist users, (S)end a message, (D)elete your account, or L(o)gout?")
             opt = input("").upper()
 
             while opt not in "CLSDO":
@@ -164,7 +205,7 @@ class Client():
 
             # Send message to another user
             elif opt == "S":
-                err, msg = self.send_msg(username)
+                err, msg = self.send_msg(self.logged_in_user[0])
                 print(msg)
                 if err == CONNECTION_ERROR:
                     self.socket.close()
@@ -172,7 +213,7 @@ class Client():
 
             # Delete user's own account
             elif opt == "D":
-                _, msg = self.delete_account(username)
+                _, msg = self.delete_account(self.logged_in_user[0])
                 if self.received_messages:
                     print("Before you go, here are your new messages:")
                     print(''.join(self.received_messages))

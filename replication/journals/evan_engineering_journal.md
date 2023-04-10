@@ -1,2 +1,9 @@
  # 4/07
  Copied over a few other server methods. Started to think about how the replication will work. I'm imagining we will have three concurrent servers (to maintain two fault tolerance). One server (initially ID 0) will be the primary. The primary will send state updates to the backup servers and the backup servers will continually ping the primary server. If a ping fails, then the primary will deterministcally become the server with the next ID (0 -> 1, 1 -> 2, 2 -> 0). Need to think about two servers failing but will address that later. Client would probably need to handle re-establishing a connection with the backup servers if this happens, not sure how we would get around that.
+
+ # 4/9
+ Added more complete client functionality, mostly copied from wire protocol implementation. All wire protocol functionality added to replication version with infrastructure to support replication, now to actually implement fail-over. Right now, when a server is killed other running servers continue running but display a BrokenPipeError.
+
+ Successfully got a very basic form of replication implemented -- if a server fails while no users are logged in, the next time they are logged in they will seamlessly be moved to a different server. All messages and accounts are persisted to the new server, using the same persistence infrastructure along with the primary server sending that information during a heartbeat ping. Next I'll work on that same sort of replication while a user is logged in.
+
+ Implemented failover while a user is logged in without too much difficulty. Uses the same method for connecting to a new server, but now keeps track of a logged in user and logs into the new server if a request to the old server ever fails.
