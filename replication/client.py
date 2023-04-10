@@ -73,7 +73,11 @@ class Client():
             failover()
 
         # Get parsed responses from the server
-        responses = parse_response(self.socket.recv(1024))
+        try:
+            responses = parse_response(self.socket.recv(1024))
+        except:
+            failover()
+            responses = parse_response(self.socket.recv(1024))
         if responses[0] == CONNECTION_ERROR:
             # Switch to backup server if socket can't receive data from server
             failover()
