@@ -34,3 +34,4 @@ Confirmed Functionality:
 - 2-fault tolerance: If server0 goes down after having received a message, server1 still has sent message. If server1 goes down after having received a message, server2 still has sent message. If server2 goes down after having received a message, server0 still has sent message.
 -
 Resolved error 1: server was just not sending a good connection message to other servers when it had gone down and there was an attempt to reconnect
+Resolved error 2 (without reboot)
