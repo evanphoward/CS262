@@ -51,6 +51,13 @@ class Client():
                 return 2, "Argument too long"
             return 0, (len(byte_arg)).to_bytes(1, byteorder='big') + byte_arg
 
+        def failover():
+            time.sleep(0.05)
+            self.primary_server_id = (self.primary_server_id + 1) % 3
+            self.initialize_socket()
+            self.login()
+            self.socket.sendall(packed_req)
+
         packed_req = (req_type).to_bytes(1, byteorder='big') + (len(args)).to_bytes(1, byteorder='big')
 
         # Pack each argument into a bytes array and append them together to send to the server
@@ -63,19 +70,13 @@ class Client():
             self.socket.sendall(packed_req)
         except:
             # Switch to a backup server if socket can't send data to server
-            self.primary_server_id = (self.primary_server_id + 1) % 3
-            self.initialize_socket()
-            self.login()
-            self.socket.sendall(packed_req)
+            failover()
 
         # Get parsed responses from the server
         responses = parse_response(self.socket.recv(1024))
         if responses[0] == CONNECTION_ERROR:
             # Switch to backup server if socket can't receive data from server
-            self.primary_server_id = (self.primary_server_id + 1) % 3
-            self.initialize_socket()
-            self.login()
-            self.socket.sendall(packed_req)
+            failover()
             responses = parse_response(self.socket.recv(1024))
         # If all of the responses are messages for the user, keep waiting until we get the response to this request
         while all(resp[0] == MESSAGE for resp in responses):
