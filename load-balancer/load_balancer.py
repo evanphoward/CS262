@@ -1,7 +1,10 @@
 import socket
+from itertools import cycle
 
 HOST = "127.0.0.1"
 PORT = 65432
+
+SERVERS = [("127.0.0.1", 65433)]
 
 # Algorithm Codes
 ROUND_ROBIN = 0
@@ -12,20 +15,37 @@ class LoadBalancer():
         self.host = host
         self.port = port
         self.algorithm = algorithm
+        self.connections = {}
 
-        # Create Socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind((self.host, self.port))
-        sock.listen()
-        self.sockets = [sock]
+        # Create Client Socket
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.bind((self.host, self.port))
+        self.client_socket.listen()
+        self.sockets = [self.client_socket]
 
     """ Function that handles selecting the server to load balance to """
     def select_server(self):
-        pass
+        def round_robin(servers):
+            return next(servers)
+
+        if self.algorithm == ROUND_ROBIN:
+            return round_robin(cycle(SERVERS))
 
     """ Function that handles connection to load balancer """
     def handle_connection(self):
-        pass
+        conn, addr = self.client_socket.accept()
+        self.sockets.append(conn)
+
+        server_host, server_port = self.select_server()
+
+        # Create Server Socket
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.connect((server_host, server_port))
+        self.sockets.append(server_socket)
+
+        # Add Connection Direction
+        self.connections[conn] = server_socket
+        self.connections[server_socket] = conn
 
     """ Function that handles closed connection """
     def close_connection(self):
@@ -37,5 +57,5 @@ class LoadBalancer():
 
 if __name__ == "__main__":
     loadbalancer = LoadBalancer()
-    loadbalancer.run()
+    loadbalancer.handle_connection()
 
