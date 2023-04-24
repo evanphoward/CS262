@@ -1,5 +1,6 @@
 import socket
 from itertools import cycle
+import select
 
 HOST = "127.0.0.1"
 PORT = 65432
@@ -47,15 +48,38 @@ class LoadBalancer():
         self.connections[conn] = server_socket
         self.connections[server_socket] = conn
 
+    """ Function that handles receiving data from appropriate socket """
+    def handle_data(self, sock, data):
+        # Find which socket to forward data to
+        forward_to = self.connections[sock]
+        forward_to.sendall(data)
+
+        return
+
     """ Function that handles closed connection """
-    def close_connection(self):
+    def close_connection(self, sock):
         pass
 
     """ Function that starts running the load balancer """
     def run(self):
-        pass
+        while True:
+            sockets, _, _ = select.select(self.sockets, [], [])
+            # Iterate through all sockets
+            for sock in sockets:
+                # New Client Connction
+                if sock == self.client_socket:
+                    self.handle_connection()
+                    break
+                # Message from Existing Client Connection
+                else:
+                    data = sock.recv(1024)
+                    if data:
+                        self.handle_data(sock, data)
+                    else:
+                        self.close_connection(sock)
+                        break
 
 if __name__ == "__main__":
     loadbalancer = LoadBalancer()
-    loadbalancer.handle_connection()
+    loadbalancer.run()
 
