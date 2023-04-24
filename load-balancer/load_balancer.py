@@ -58,7 +58,19 @@ class LoadBalancer():
 
     """ Function that handles closed connection """
     def close_connection(self, sock):
-        pass
+        server_socket = self.connections[sock]
+
+        # Close client-side socket and server-side socket
+        sock.close()
+        server_socket.close()
+
+        # Remove client-side socket and server-side socket
+        self.sockets.remove(sock)
+        self.sockets.remove(server_socket)
+        del self.connections[sock]
+        del self.connections[server_socket]
+
+        return
 
     """ Function that starts running the load balancer """
     def run(self):
