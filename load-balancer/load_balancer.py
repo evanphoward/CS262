@@ -5,7 +5,7 @@ import select
 HOST = "127.0.0.1"
 PORT = 65432
 
-SERVERS = [("127.0.0.1", 65433)]
+SERVERS = [("127.0.0.1", 65433), ("127.0.0.1", 65434), ("127.0.0.1", 65435)]
 
 # Algorithm Codes
 ROUND_ROBIN = 0
@@ -23,14 +23,13 @@ class LoadBalancer():
         self.client_socket.bind((self.host, self.port))
         self.client_socket.listen()
         self.sockets = [self.client_socket]
+        if self.algorithm == ROUND_ROBIN:
+            self.iterator = cycle(SERVERS)
 
     """ Function that handles selecting the server to load balance to """
     def select_server(self):
-        def round_robin(servers):
-            return next(servers)
-
         if self.algorithm == ROUND_ROBIN:
-            return round_robin(cycle(SERVERS))
+            return next(self.iterator)
 
     """ Function that handles connection to load balancer """
     def handle_connection(self):
@@ -47,6 +46,7 @@ class LoadBalancer():
         # Add Connection Direction
         self.connections[conn] = server_socket
         self.connections[server_socket] = conn
+        print(f"Connected client {conn.getpeername()} to server {server_socket.getpeername()}")
 
     """ Function that handles receiving data from appropriate socket """
     def handle_data(self, sock, data):

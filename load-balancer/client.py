@@ -12,3 +12,6 @@ class Client():
 
 if __name__ == "__main__":
     client = Client()
+    client.socket.sendall(b"PING!")
+    data = client.socket.recv(1024)
+    print(data)

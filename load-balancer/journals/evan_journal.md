@@ -1,1 +1,2 @@
- 
+ # 04/25
+ Fixed the round robin logic so it would cycle through the servers. Added logging in the load balancer so you could see when a connection took place. Made the client ping the server and the server return a pong.
