@@ -13,3 +13,10 @@ The server now simulates a variable response time for each request, using a norm
 `generate_graphs.py` either generates a plot of the response times for the three jsons in `data/` (baseline one server, round robin w/ 5 servers, least connections w/ 5 servers) or generates more detailed graphs for an individual file
 
 Doesn't seem to be a huge difference between the options. Probably want to run more trials or think about how to change various things (how we're connecting to the server, how parallel the servers can be) to have a more pronounced difference between the algorithms. Need to make slides!
+
+# 04/30
+Added `MAX_CONNECTIONS` to the server to simulate an overloaded server. Uses a threading condition to block a client until a server has less than `MAX_CONNECTIONS`.
+
+Changed various aspects of `generate_graphs.py` to get more useful visualizations -- put the data and figures in their corresponding folders
+
+Made a presentation
