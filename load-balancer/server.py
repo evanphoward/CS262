@@ -1,11 +1,13 @@
 import socket
 import sys
 from _thread import *
+import threading
 import time
 import numpy as np
 
 RESPONSE_MEAN = 0.5
 RESPONSE_VAR = 0.2
+MAX_CONNECTIONS = 10
 
 """ Class that represents a Server """
 class Server():
@@ -14,6 +16,8 @@ class Server():
         self.host = host
         self.port = port
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.active_connections = 0
+        self.connection_condition = threading.Condition()
 
     def handle_connection(self, conn):
         print(f"Connected to client {conn.getpeername()}")
@@ -21,6 +25,9 @@ class Server():
             data = conn.recv(1024)
             if not data:
                 print(f"Closing connection to client {conn.getpeername()}")
+                with self.connection_condition:
+                    self.active_connections -= 1
+                    self.connection_condition.notify()
                 conn.close()
                 break
             
@@ -37,7 +44,12 @@ class Server():
 
         while True:
             conn, addr = self.server.accept()
-            start_new_thread(self.handle_connection, (conn,))
+            with self.connection_condition:
+                while self.active_connections >= MAX_CONNECTIONS:
+                    print("Maximum connections reached, waiting for available slot")
+                    self.connection_condition.wait()
+                self.active_connections += 1
+                start_new_thread(self.handle_connection, (conn,))
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:

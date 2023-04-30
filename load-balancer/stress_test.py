@@ -2,6 +2,7 @@ import sys
 import concurrent.futures
 import json
 import random
+import time
 from client import Client
 
 def make_requests(number_of_requests):
@@ -22,7 +23,9 @@ if __name__ == "__main__":
 
     # Start multiple clients concurrently
     with concurrent.futures.ThreadPoolExecutor(max_workers=number_of_clients) as executor:
+        start_time = time.time()
         results = list(executor.map(make_requests, [random.randint(1, max_number_of_requests)] * number_of_clients))
         with open("response_times.json", "w") as f:
             json.dump(results, f)
+        print(f"Total time: {time.time() - start_time} seconds")
         

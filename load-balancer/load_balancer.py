@@ -13,7 +13,7 @@ LEAST_CONNECTIONS = 1
 
 class LoadBalancer():
     """ Initialize LoadBalancer Object """
-    def __init__(self, host = HOST, port = PORT, algorithm = ROUND_ROBIN):
+    def __init__(self, host = HOST, port = PORT, algorithm = LEAST_CONNECTIONS):
         self.host = host
         self.port = port
         self.algorithm = algorithm
