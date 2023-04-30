@@ -1,6 +1,11 @@
 import socket
 import sys
 from _thread import *
+import time
+import numpy as np
+
+RESPONSE_MEAN = 0.5
+RESPONSE_VAR = 0.2
 
 """ Class that represents a Server """
 class Server():
@@ -11,11 +16,19 @@ class Server():
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def handle_connection(self, conn):
+        print(f"Connected to client {conn.getpeername()}")
         while True:
             data = conn.recv(1024)
             if not data:
+                print(f"Closing connection to client {conn.getpeername()}")
+                conn.close()
                 break
             
+            response_time = np.random.normal(RESPONSE_MEAN, RESPONSE_VAR)
+            # Ensure response_time is non-negative, despite there being a very small probability
+            while response_time < 0:
+                response_time = np.random.normal(RESPONSE_MEAN, RESPONSE_VAR)
+            time.sleep(response_time)
             conn.sendall(b"PONG!")
 
     def run(self):

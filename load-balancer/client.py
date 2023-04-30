@@ -1,4 +1,5 @@
 import socket
+import time
 
 HOST = "127.0.0.1"
 PORT = 65432
@@ -10,8 +11,15 @@ class Client():
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((HOST, PORT))
 
+    def send_request(self, data):
+        start_time = time.time()
+        self.socket.sendall(data)
+        response = self.socket.recv(1024)
+        response_time = time.time() - start_time
+        return response, response_time
+
 if __name__ == "__main__":
     client = Client()
-    client.socket.sendall(b"PING!")
-    data = client.socket.recv(1024)
-    print(data)
+    response, response_time = client.send_request(b"PING!")
+    print(response)
+    print(f"Response time: {response_time:.4f} seconds")

@@ -5,10 +5,11 @@ import select
 HOST = "127.0.0.1"
 PORT = 65432
 
-SERVERS = [("127.0.0.1", 65433), ("127.0.0.1", 65434), ("127.0.0.1", 65435)]
+SERVERS = [("127.0.0.1", 65433), ("127.0.0.1", 65434), ("127.0.0.1", 65435), ("127.0.0.1", 65436), ("127.0.0.1", 65437)]
 
 # Algorithm Codes
 ROUND_ROBIN = 0
+LEAST_CONNECTIONS = 1
 
 class LoadBalancer():
     """ Initialize LoadBalancer Object """
@@ -17,6 +18,7 @@ class LoadBalancer():
         self.port = port
         self.algorithm = algorithm
         self.connections = {}
+        self.num_connections = {server: 0 for server in SERVERS}
 
         # Create Client Socket
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,6 +32,8 @@ class LoadBalancer():
     def select_server(self):
         if self.algorithm == ROUND_ROBIN:
             return next(self.iterator)
+        elif self.algorithm == LEAST_CONNECTIONS:
+            return min(self.num_connections, key=self.num_connections.get)
 
     """ Function that handles connection to load balancer """
     def handle_connection(self):
@@ -37,6 +41,7 @@ class LoadBalancer():
         self.sockets.append(conn)
 
         server_host, server_port = self.select_server()
+        self.num_connections[(server_host, server_port)] += 1
 
         # Create Server Socket
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -59,6 +64,7 @@ class LoadBalancer():
     """ Function that handles closed connection """
     def close_connection(self, sock):
         server_socket = self.connections[sock]
+        self.num_connections[server_socket.getpeername()] -= 1
 
         # Close client-side socket and server-side socket
         sock.close()
@@ -75,7 +81,11 @@ class LoadBalancer():
     """ Function that starts running the load balancer """
     def run(self):
         while True:
-            sockets, _, _ = select.select(self.sockets, [], [])
+            try:
+                sockets, _, _ = select.select(self.sockets, [], [])
+            except ValueError:
+                print("Too Many Sockets Open, trying again")
+                continue
             # Iterate through all sockets
             for sock in sockets:
                 # New Client Connction

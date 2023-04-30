@@ -1,0 +1,128 @@
+diff --git a/load-balancer/client.py b/load-balancer/client.py
+index a0bebaa..602a55e 100644
+--- a/load-balancer/client.py
++++ b/load-balancer/client.py
+@@ -1,4 +1,5 @@
+ import socket
++import time
+ 
+ HOST = "127.0.0.1"
+ PORT = 65432
+@@ -10,8 +11,15 @@ class Client():
+         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+         self.socket.connect((HOST, PORT))
+ 
++    def send_request(self, data):
++        start_time = time.time()
++        self.socket.sendall(data)
++        response = self.socket.recv(1024)
++        response_time = time.time() - start_time
++        return response, response_time
++
+ if __name__ == "__main__":
+     client = Client()
+-    client.socket.sendall(b"PING!")
+-    data = client.socket.recv(1024)
+-    print(data)
++    response, response_time = client.send_request(b"PING!")
++    print(response)
++    print(f"Response time: {response_time:.4f} seconds")
+diff --git a/load-balancer/load_balancer.py b/load-balancer/load_balancer.py
+index c5cbbad..4edfe92 100644
+--- a/load-balancer/load_balancer.py
++++ b/load-balancer/load_balancer.py
+@@ -5,10 +5,11 @@ import select
+ HOST = "127.0.0.1"
+ PORT = 65432
+ 
+-SERVERS = [("127.0.0.1", 65433), ("127.0.0.1", 65434), ("127.0.0.1", 65435)]
++SERVERS = [("127.0.0.1", 65433), ("127.0.0.1", 65434), ("127.0.0.1", 65435), ("127.0.0.1", 65436), ("127.0.0.1", 65437)]
+ 
+ # Algorithm Codes
+ ROUND_ROBIN = 0
++LEAST_CONNECTIONS = 1
+ 
+ class LoadBalancer():
+     """ Initialize LoadBalancer Object """
+@@ -17,6 +18,7 @@ class LoadBalancer():
+         self.port = port
+         self.algorithm = algorithm
+         self.connections = {}
++        self.num_connections = {server: 0 for server in SERVERS}
+ 
+         # Create Client Socket
+         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+@@ -30,6 +32,8 @@ class LoadBalancer():
+     def select_server(self):
+         if self.algorithm == ROUND_ROBIN:
+             return next(self.iterator)
++        elif self.algorithm == LEAST_CONNECTIONS:
++            return min(self.num_connections, key=self.num_connections.get)
+ 
+     """ Function that handles connection to load balancer """
+     def handle_connection(self):
+@@ -37,6 +41,7 @@ class LoadBalancer():
+         self.sockets.append(conn)
+ 
+         server_host, server_port = self.select_server()
++        self.num_connections[(server_host, server_port)] += 1
+ 
+         # Create Server Socket
+         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+@@ -59,6 +64,7 @@ class LoadBalancer():
+     """ Function that handles closed connection """
+     def close_connection(self, sock):
+         server_socket = self.connections[sock]
++        self.num_connections[server_socket.getpeername()] -= 1
+ 
+         # Close client-side socket and server-side socket
+         sock.close()
+@@ -75,7 +81,11 @@ class LoadBalancer():
+     """ Function that starts running the load balancer """
+     def run(self):
+         while True:
+-            sockets, _, _ = select.select(self.sockets, [], [])
++            try:
++                sockets, _, _ = select.select(self.sockets, [], [])
++            except ValueError:
++                print("Too Many Sockets Open, trying again")
++                continue
+             # Iterate through all sockets
+             for sock in sockets:
+                 # New Client Connction
+diff --git a/load-balancer/server.py b/load-balancer/server.py
+index ac72d66..1fc9100 100644
+--- a/load-balancer/server.py
++++ b/load-balancer/server.py
+@@ -1,6 +1,11 @@
+ import socket
+ import sys
+ from _thread import *
++import time
++import numpy as np
++
++RESPONSE_MEAN = 0.5
++RESPONSE_VAR = 0.2
+ 
+ """ Class that represents a Server """
+ class Server():
+@@ -11,11 +16,19 @@ class Server():
+         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+ 
+     def handle_connection(self, conn):
++        print(f"Connected to client {conn.getpeername()}")
+         while True:
+             data = conn.recv(1024)
+             if not data:
++                print(f"Closing connection to client {conn.getpeername()}")
++                conn.close()
+                 break
+             
++            response_time = np.random.normal(RESPONSE_MEAN, RESPONSE_VAR)
++            # Ensure response_time is non-negative, despite there being a very small probability
++            while response_time < 0:
++                response_time = np.random.normal(RESPONSE_MEAN, RESPONSE_VAR)
++            time.sleep(response_time)
+             conn.sendall(b"PONG!")
+ 
+     def run(self):
