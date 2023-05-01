@@ -7,3 +7,7 @@ TODO:
 1. do some more logging on load-balancer so it's clear when connections happen to client / to server
 2. implement some sort of server/client functionality so that it's easier to determine if the code is working
 3. think about different load balancing algorithms
+
+# 05/01
+- comment cleanup
+- readme
