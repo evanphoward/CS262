@@ -1,6 +1,7 @@
 import socket
 from itertools import cycle
 import select
+import sys
 
 HOST = "127.0.0.1"
 PORT = 65432
@@ -102,6 +103,19 @@ class LoadBalancer():
                         break
 
 if __name__ == "__main__":
-    loadbalancer = LoadBalancer()
+    if len (sys.argv) != 2:
+        print ("How to Use: python3 load_balancer.py [algorithm].\nAvaialble algorithms: round-robin, least-connections.")
+        exit()
+
+    algorithm = sys.argv[1]
+    if algorithm == "round-robin":
+        algo_code = ROUND_ROBIN
+    elif algorithm == "least-connections":
+        algo_code = LEAST_CONNECTIONS
+    else:
+        print ("How to Use: python3 load_balancer.py [algorithm].\nAvaialble algorithms: round-robin, least-connections.")
+        exit()
+
+    loadbalancer = LoadBalancer(algorithm = algo_code)
     loadbalancer.run()
 

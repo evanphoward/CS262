@@ -12,8 +12,9 @@ Additionally, the host and port numbers of servers are designated in `load_balan
 
 You can start the load balancer by running the following command:
 ``` console
-python3 load_balancer.py
+python3 load_balancer.py [algorithm]
 ```
+Currently, the available algorithms are `round-robin`, which iterates through all of the servers in order and `least-connections` which chooses the server that currently has the least connections.
 
 Once the servers and the load balancer are running, you can start up a client that will connect to a load balancer and send a request to a server that is selected by the load balancer by running the following command:
 ```console
