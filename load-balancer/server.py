@@ -19,6 +19,7 @@ class Server():
         self.active_connections = 0
         self.connection_condition = threading.Condition()
 
+    """ Handles Connction with Client """
     def handle_connection(self, conn):
         print(f"Connected to client {conn.getpeername()}")
         while True:
@@ -30,7 +31,7 @@ class Server():
                     self.connection_condition.notify()
                 conn.close()
                 break
-            
+
             response_time = np.random.normal(RESPONSE_MEAN, RESPONSE_VAR)
             # Ensure response_time is non-negative, despite there being a very small probability
             while response_time < 0:
@@ -38,6 +39,7 @@ class Server():
             time.sleep(response_time)
             conn.sendall(b"PONG!")
 
+    """ Runs the server by listening to connections """
     def run(self):
         self.server.bind((self.host, self.port))
         self.server.listen()

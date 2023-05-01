@@ -5,6 +5,7 @@ import random
 import time
 from client import Client
 
+""" Function creates client and sends a simple ping request multiple times and records response times """
 def make_requests(number_of_requests):
     client = Client()
     response_times = []
@@ -28,4 +29,3 @@ if __name__ == "__main__":
         with open("response_times.json", "w") as f:
             json.dump(results, f)
         print(f"Total time: {time.time() - start_time} seconds")
-        

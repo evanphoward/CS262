@@ -11,6 +11,7 @@ class Client():
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((HOST, PORT))
 
+    """ Function that sends request to server """
     def send_request(self, data):
         start_time = time.time()
         self.socket.sendall(data)
