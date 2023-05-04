@@ -6,7 +6,7 @@ import time
 import numpy as np
 
 RESPONSE_MEAN = 0.5
-RESPONSE_VAR = 0.2
+RESPONSE_STD = 0.2
 MAX_CONNECTIONS = 10
 
 """ Class that represents a Server """
@@ -32,10 +32,10 @@ class Server():
                 conn.close()
                 break
 
-            response_time = np.random.normal(RESPONSE_MEAN, RESPONSE_VAR)
+            response_time = np.random.normal(RESPONSE_MEAN, RESPONSE_STD)
             # Ensure response_time is non-negative, despite there being a very small probability
             while response_time < 0:
-                response_time = np.random.normal(RESPONSE_MEAN, RESPONSE_VAR)
+                response_time = np.random.normal(RESPONSE_MEAN, RESPONSE_STD)
             time.sleep(response_time)
             conn.sendall(b"PONG!")
 
@@ -52,6 +52,25 @@ class Server():
                     self.connection_condition.wait()
                 self.active_connections += 1
                 start_new_thread(self.handle_connection, (conn,))
+
+def unit_tests(host, port):
+    server = Server(host, port)
+    start_new_thread(server.run, ())
+
+    # Assert that server is running and listening at the given host and port
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    assert(sock.connect_ex((host, port)) == 0)
+    
+    # Assert that server responds with a pong in a time that is reasonable given the sampling
+    start_time = time.time()
+    sock.sendall(b"PING!")
+    resp = sock.recv(1024)
+    response_time = time.time() - start_time
+    assert(resp == b"PONG!")
+    assert(response_time < 1.5)
+
+    sock.close()
+    print("All unit tests passed")
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:

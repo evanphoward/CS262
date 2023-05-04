@@ -104,7 +104,7 @@ class LoadBalancer():
 
 if __name__ == "__main__":
     if len (sys.argv) != 2:
-        print ("How to Use: python3 load_balancer.py [algorithm].\nAvaialble algorithms: round-robin, least-connections.")
+        print ("How to Use: python3 load_balancer.py [algorithm].\nAvailable algorithms: round-robin, least-connections.")
         exit()
 
     algorithm = sys.argv[1]
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     elif algorithm == "least-connections":
         algo_code = LEAST_CONNECTIONS
     else:
-        print ("How to Use: python3 load_balancer.py [algorithm].\nAvaialble algorithms: round-robin, least-connections.")
+        print ("How to Use: python3 load_balancer.py [algorithm].\nAvailable algorithms: round-robin, least-connections.")
         exit()
 
     loadbalancer = LoadBalancer(algorithm = algo_code)

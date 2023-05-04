@@ -1,5 +1,8 @@
 import socket
 import time
+from _thread import *
+import threading
+from server import Server
 
 HOST = "127.0.0.1"
 PORT = 65432
@@ -18,6 +21,19 @@ class Client():
         response = self.socket.recv(1024)
         response_time = time.time() - start_time
         return response, response_time
+
+def unit_tests():
+    server = Server(HOST, PORT)
+    start_new_thread(server.run, ())
+    time.sleep(0.1)
+    client = Client()
+
+    response, response_time = client.send_request(b"PING!")
+    assert(response == b"PONG!")
+    assert(response_time < 1.5)
+
+    client.socket.close()
+    print("All Unit Tests Passed")
 
 if __name__ == "__main__":
     client = Client()
